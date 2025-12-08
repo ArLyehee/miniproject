@@ -26,9 +26,9 @@ package.json 에 11번째 줄
 npm run dev
 
 처음 실행화면
+![alt text](main.PNG)
 
-![alt text](../../../Pictures/mini/main.PNG)
 
 로그인한뒤 상품 상세 페이지
 
-![alt text](../../../Pictures/mini/detail.PNG)
+![alt text](detail.PNG)
