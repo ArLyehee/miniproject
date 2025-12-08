@@ -18,6 +18,33 @@ import MainPage from './user_components/MainPage'
 function App() {
   const [products, setProducts] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);  // ✅ 추가
+  const [userName, setUserName] = useState('');  // ✅ 추가
+
+  // 로그인 상태 확인
+  useEffect(() => {
+    const userId = localStorage.getItem('userId');
+    const name = localStorage.getItem('userName');
+    
+    if (userId) {
+      setIsLoggedIn(true);
+      setUserName(name || '사용자');
+    }
+  }, []);
+
+  // 로그인 핸들러
+  const handleLogin = (userId, userName) => {
+    setIsLoggedIn(true);
+    setUserName(userName);
+  };
+
+  // 로그아웃 핸들러
+  const handleLogout = () => {
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userName');
+    setIsLoggedIn(false);
+    setUserName('');
+  };
 
   const handleAddReview = (productId, rating, content) => {
 
@@ -76,13 +103,17 @@ function App() {
   return (
     <>
     <BrowserRouter>
-    <Header/>
+      <Header 
+        isLoggedIn={isLoggedIn} 
+        userName={userName} 
+        onLogout={handleLogout} 
+      />
       <Routes>
         <Route path='/order' element={<Order />}/>
         <Route path='/done' element={<Done />}/>
         {/* <Route path='/' element={<Addmain/>}/> */}
         <Route path='/cart' element={<Cart/>}/>
-        <Route path='/login' element={<Login/>}/>
+        <Route path='/login' element={<Login onLogin={handleLogin} />}/>
         <Route path='/regist' element={<Regist/>}/>
         <Route path='/mainpage' element={<MainPage/>}/>
         <Route path='/settings' element={<Settings/>}/>

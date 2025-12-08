@@ -1,17 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-function Header() {
+function Header({ isLoggedIn, userName, onLogout }) {
     const [search, setSearch] = useState("");
     const [data, setData] = useState([]);
-    
-    // 로그인 확인
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [userName, setUserName] = useState('');
-    
     const navigate = useNavigate();
 
-    // ✅ 상품 데이터 로드
+    // 상품 데이터 로드
     useEffect(() => {
         async function fetchProducts() {
             const response = await fetch('http://localhost:8080/pro/products');
@@ -21,30 +16,16 @@ function Header() {
         fetchProducts();
     }, []);
 
-    // ✅ 로그인 상태 확인
-    useEffect(() => {
-        const userId = localStorage.getItem('userId');
-        const name = localStorage.getItem('userName');
-        
-        if (userId) {
-            setIsLoggedIn(true);
-            setUserName(name || '사용자');
-        }
-    }, []);
-
-    // ✅ 로그아웃 핸들러
+    // 로그아웃 핸들러
     const handleLogout = () => {
-        localStorage.removeItem('userId');
-        localStorage.removeItem('userName');
-        setIsLoggedIn(false);
-        setUserName('');
+        onLogout();  // ✅ 부모 함수 호출
         alert('로그아웃 되었습니다.');
         navigate('/');
     };
 
     // 검색 필터링
     const filterData = data.filter(item =>
-        (item.pName || "").toLowerCase().includes((search || "").toLowerCase())
+        (item.name || "").toLowerCase().includes((search || "").toLowerCase())
     );
 
     function onClick() {
@@ -68,7 +49,6 @@ function Header() {
                                 <li><Link to="/login">로그인</Link></li>
                                 <li><Link to="/regist">회원가입</Link></li>
                                 <li><Link to="/cart">장바구니</Link></li>
-                                <li><Link to="/settings">마이페이지</Link></li>
                             </>
                         )}
                     </ul>
