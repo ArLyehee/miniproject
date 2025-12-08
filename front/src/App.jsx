@@ -89,7 +89,7 @@ function App() {
         <Route path='/settings/edit' element={<EditUser/>}/>
         <Route path='/settings/delete' element={<DeleteUser/>}/>
         <Route path="/" element={
-          <div style={{ padding: '20px' }}>
+          <div className="product-list" style={{ padding: '20px' , textAlign: 'center' }}>
             <ProductList
               products={products}/></div>} />
         {/* 상세 페이지 라우트 */}

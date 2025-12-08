@@ -139,6 +139,13 @@ function ProductDetail({ products, reviews, onAddReview }) {
           <span>브랜드: {product.brand}</span>
           <p><img src={product.image} alt={product.name} style={{ width: '400px', height: '400px' }} /></p>
           <h2>{product.name}</h2>
+          {product.stock === 0 ? (
+            <p style={{ color: 'gray', fontWeight: 'bold' }}>❌ 일시 품절</p>
+          ) : product.stock <= 5 ? (
+            <p style={{ color: 'red', fontWeight: 'bold' }}>
+              🔥품절 임박🔥
+            </p>
+          ) : null}
           <p>가격: {product.price ? product.price.toLocaleString() : 0}원</p>
           <hr />
 

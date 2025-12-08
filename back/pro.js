@@ -5,14 +5,15 @@ const router = express.Router();
 // [GET /products] 상품 전체 목록
 router.get('/products', async (req, res) => {
   try {
-    const rows = await pool.query("SELECT pId, pName, pPrice, description, pcategory, img FROM products");
+    const rows = await pool.query("SELECT pId, pName, pPrice, description, pcategory, img, stock FROM products");
     const products = rows.map(row => ({
       id: row.pId,
       name: row.pName,
       price: row.pPrice,
       description: row.description,
       category: row.pcategory,
-      image: row.img
+      image: row.img,
+      stock: row.stock
     }));
     res.json(products);
   } catch (err) {
@@ -25,7 +26,7 @@ router.get('/products', async (req, res) => {
 router.get('/products/:pId', async (req, res) => {
   try {
     const productId = req.params.pId;
-    const rows = await pool.query("SELECT pId, pName, pPrice, description, pcategory,img FROM products WHERE pId = ?", [productId]);
+    const rows = await pool.query("SELECT pId, pName, pPrice, description, pcategory,img, stock FROM products WHERE pId = ?", [productId]);
 
     if (rows.length === 0) return res.status(404).json({});
 
@@ -36,7 +37,8 @@ router.get('/products/:pId', async (req, res) => {
       price: product.pPrice,
       description: product.description,
       category: product.pcategory,
-      image: product.img
+      image: product.img,
+      stock: product.stock
     });
   } catch (err) {
     console.error(err);

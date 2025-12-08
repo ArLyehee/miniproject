@@ -129,8 +129,8 @@ function Header() {
                             </>
                         ) : (
                             <>
-                                <li><Link to="/regist">회원가입</Link></li>
                                 <li><Link to="/login">로그인</Link></li>
+                                <li><Link to="/regist">회원가입</Link></li>
                                 <li><Link to="/cart">장바구니</Link></li>
                                 <li><Link to="/settings">마이페이지</Link></li>
                             </>
