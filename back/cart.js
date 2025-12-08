@@ -28,9 +28,9 @@ router.put('/update', async(req,res)=>{
 })
 
 router.delete('/delete', async(req,res)=>{
-    const pId = req.body.pId
-    await pool.query('DELETE FROM cart WHERE pId =?',
-        [pId]
+    const {pId, userId} = req.body
+    await pool.query('DELETE FROM cart WHERE pId =? AND id = ?',
+        [pId, userId]
     )
     res.send({"result":true})
 })

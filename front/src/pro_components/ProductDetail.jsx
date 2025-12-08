@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 // App.jsx에서 products 배열, reviews 배열, onAddReview 함수를 받음
-function ProductDetail({ products, reviews, onAddReview }) {
+function ProductDetail({ products, reviews, onAddReview}) {
 
   const userId = localStorage.getItem('userId');
   const userName = localStorage.getItem('userName');
@@ -12,10 +12,37 @@ function ProductDetail({ products, reviews, onAddReview }) {
   // [추가] 사용자가 선택한 평점을 저장하는 상태 (기본값 5점)
   const [rating, setRating] = useState(0);
   const [reviewComment, setReviewComment] = useState('');
+  const [quantity, setQuantity] = useState(1);
 
   const productReviews = reviews.filter(r =>
     String(r.pId) === productId
   );
+
+  const handleQuantityButton = (type) => {
+    if (!product) return;
+
+    setQuantity(prev => {
+      // 재고 확인 재고 초과방지
+      if (type === 'plus' && prev < product.stock) {
+        return prev + 1;
+      } else if (type === 'minus' && prev > 1) {
+        return prev - 1;
+      }
+      return prev;
+    });
+  };
+
+  // 수량 입력 필드 값 변경 핸들러
+  const handleQuantityChange = (event) => {
+    if (!product) return;
+    const value = parseInt(event.target.value, 10);
+
+    if (value >= 1 && value <= product.stock) {
+      setQuantity(value);
+    } else if (value < 1) {
+      setQuantity(1);
+    }
+  };
 
   ///////////////별점 표시 함수 (기존)
   const renderStars = (score) => {
@@ -108,7 +135,7 @@ function ProductDetail({ products, reviews, onAddReview }) {
             body: JSON.stringify({
                 pId: product.id,
                 id: userId,
-                amount: 1,  // 기본 수량
+                amount: quantity,  // 기본 수량
                 img: product.image,
                 pName: product.name,
                 pPrice: product.price
@@ -155,10 +182,32 @@ function ProductDetail({ products, reviews, onAddReview }) {
           <hr />
 
           <p>상품 상세 설명: {product.description}</p>
-          
-
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+            <span style={{ marginRight: '10px', fontWeight: 'bold' }}>수량:</span>
+            <div style={{ display: 'flex' }}>
+              <button
+                onClick={() => handleQuantityButton('minus')}
+                style={{ marginRight: '5px' }}
+              >
+                -
+              </button>
+              <input
+                type="number"
+                min="1"
+                max={product.stock}
+                value={quantity}
+                onChange={handleQuantityChange}
+                style={{ width: '50px', textAlign: 'center', marginRight: '5px' }}
+              />
+              <button
+                onClick={() => handleQuantityButton('plus')}
+              >
+                +
+              </button>
+            </div>
+          </div>
           <div>
-            <button onClick={moveCart}>장바구니 담기</button>
+            <button onClick={moveCart}>장바구니 담기({quantity}개)</button>
             <button onClick={moveCart}>바로 구매</button>
           </div>
         </div>
