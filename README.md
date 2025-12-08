@@ -25,6 +25,10 @@ package.json 에 11번째 줄
 
 npm run dev
 
-일단 뼈대만 만들어 놨습니당
-![alt text](cart.png)
-![alt text](order.png)
+처음 실행화면
+
+![alt text](../../../Pictures/mini/main.PNG)
+
+로그인한뒤 상품 상세 페이지
+
+![alt text](../../../Pictures/mini/detail.PNG)

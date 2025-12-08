@@ -62,14 +62,19 @@ function ProductDetail({ products, reviews, onAddReview }) {
 
   // 리뷰 제출 핸들러 [수정: rating 전달]
   const handleSubmitReview = () => {
-    if (!reviewComment.trim()) {
-      alert("리뷰 내용을 입력해주세요.");
-      return;
+    if (!userId) {
+        alert('로그인이 필요합니다.');
+        navigate('/login');
+        return;
     }
-    // rating 값을 onAddReview 함수에 전달
-    onAddReview(productId, rating, reviewComment);
-    setReviewComment('');
-    setRating(0); // 제출 후 rating 초기화
+      if (!reviewComment.trim()) {
+        alert("리뷰 내용을 입력해주세요.");
+        return;
+      }
+      // rating 값을 onAddReview 함수에 전달
+      onAddReview(productId, rating, reviewComment);
+      setReviewComment('');
+      setRating(0); // 제출 후 rating 초기화
   };
 
 
