@@ -3,13 +3,16 @@ import { Navigate, useNavigate } from "react-router-dom";
 function Settings() {
     const navigate = useNavigate();
 
+    function productclick() {
+        navigate('/addmain')
+    }
 
     return (
 
      <div>
 
         <h1>회원설정 선택</h1>
-
+        <button onClick={productclick}>상품등록창으로 이동</button>
         <button onClick={() => navigate("/settings/edit")}>회원정보 수정</button> <br /> <br />
          <button onClick={() => navigate("/settings/delete")}>회원정보 삭제</button>
             {/* 결과 메세지 div

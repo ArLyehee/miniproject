@@ -1,34 +1,84 @@
-// import { useNavigate } from "react-router-dom"
-// import { useEffect, useState } from "react";
+import { useState } from "react";
+function Product() {
+    const [pName, setpName] = useState("")
+    const [pPrice, setpPrice] = useState("")
+    const [description, setdescription] = useState("")
+    const [stock, setStock] = useState("")
+    const [image, setImage] = useState(null);  // 이미지 파일 상태 추가
 
-// function Addmain() {
-//     const [data, setData] = useState([])
-//     const com = useNavigate();
-//     //상품 불러오는 부분
-//     useEffect(() => {
-//         async function test() {
-//             const response = await fetch('http://localhost:8080/pro/products');
-//             const data = await response.json();
-//             setData(data);
-//         }
-//         test();
-//     }, []);
-//     function productclick() {
-//         com('/productDetail')
-//     }
-//     //data안에 상품을 전부 출력
-//     return (
-//         <>
-//             <p>메인페이지</p>
-//             {data.map((item) => (
-//                 <div key={item.pId}>
-//                     <p>상품명: {item.pName}</p>
-//                     <p>가격: {item.pPrice}</p>
-//                 </div>
-//             ))}
-//             <button onClick={productclick}>상품등록창으로 이동</button>
-//         </>
-//     )
-// }
+    function saveProduct() {
 
-// export default Addmain;
+        // 필수값 체크
+        if (!pName.trim() || !pPrice.trim()) {
+            alert("상품명, 가격은 필수 입력입니다")
+            return;
+        }
+
+        // 숫자 체크
+        if (isNaN(pPrice.trim())) {
+            alert ("가격은 숫자로 입력해주세요");
+            return;
+        }
+
+        if (stock && isNaN(stock.trim())) { // 재고값은 비워도 되니까 stock을 빈값 허용 해줌
+            alert ("재고는 숫자로 입력해주세요")
+            return;
+        }
+
+        // FomData 준비
+         const formData = new FormData();
+        formData.append("pName", pName.trim());
+        formData.append("pPrice", pPrice.trim());
+        formData.append("description", description.trim() || "");
+        formData.append("stock", stock.trim() || 0);
+        if(image){formData.append("image", image); // 이미지 파일 추가
+        }
+
+
+        // 서버로 전송
+        fetch("http://localhost:8080/main/addmain", {
+            method: "POST",
+            
+            body: formData, // body를 formData로 설정
+        })
+            .then(res => res.json())
+            .then(data => {
+                console.log("상품등록", data);
+                setpName("");
+                setpPrice("");
+                setdescription("");
+                setStock("");
+                setImage(null);
+            })
+            .catch(err => console.error("상품등록 에러:", err));
+    }
+
+
+    return (
+        <>
+            <p>상품등록창</p>
+            <div className="pimg">
+                {/* 선택한 이미지 미리보기 */}
+                {image && (
+                 <img src={URL.createObjectURL(image)} alt="상품 이미지" width={200} />
+                )}
+               
+                <div>
+
+                    <p>이미지 업로드:
+                        <input type="file" accept="image/*" onChange={(e) => setImage(e.target.files[0])} />
+                    </p>
+
+
+                    <p>이름: <input value={pName} onChange={(e) => setpName(e.target.value)} /></p>
+                    <p>가격: <input value={pPrice} onChange={(e) => setpPrice(e.target.value)} /></p>
+                    <p>설명:<input value={description} onChange={(e) => setdescription(e.target.value)} /></p>
+                    <p>재고:<input value={stock} onChange={(e) => setStock(e.target.value)} /></p>
+                </div>
+                <button onClick={saveProduct}>상품저장</button>
+            </div>
+        </>
+    )
+}
+
+export default Product;

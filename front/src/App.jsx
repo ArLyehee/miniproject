@@ -6,7 +6,7 @@ import Order from './cart_components/Order'
 import Cart from './cart_components/Cart'
 import Done from './cart_components/Done'
 import Header from './main_components/header.jsx'
-// import Addmain from './main_components/Addmain.jsx'
+import Addmain from './main_components/Addmain.jsx'
 import Login from './user_components/Login'
 import Regist from './user_components/regist.jsx'
 import Settings from './user_components/Settings'
@@ -111,7 +111,7 @@ function App() {
       <Routes>
         <Route path='/order' element={<Order />}/>
         <Route path='/done' element={<Done />}/>
-        {/* <Route path='/' element={<Addmain/>}/> */}
+        <Route path='/addmain' element={<Addmain/>}/>
         <Route path='/cart' element={<Cart/>}/>
         <Route path='/login' element={<Login onLogin={handleLogin} />}/>
         <Route path='/regist' element={<Regist/>}/>

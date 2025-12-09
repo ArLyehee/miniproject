@@ -12,7 +12,7 @@ router.get('/products', async (req, res) => {
       price: row.pPrice,
       description: row.description,
       category: row.pcategory,
-      image: row.img,
+      image: `http://localhost:8080${row.img}`,
       stock: row.stock,
       brand: row.brand
     }));
@@ -38,7 +38,7 @@ router.get('/products/:pId', async (req, res) => {
       price: product.pPrice,
       description: product.description,
       category: product.pcategory,
-      image: product.img,
+      image: `http://localhost:8080${product.img}`,
       stock: product.stock,
       brand: product.brand
     });
