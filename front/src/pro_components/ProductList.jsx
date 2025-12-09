@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 function ProductList({ products }) {
   const navigate = useNavigate();
   
-  // 데이터 없을 때 안내
   if (products.length === 0) {
     return (
       <div style={{ textAlign: 'center', padding: '50px' }}>
@@ -14,21 +13,23 @@ function ProductList({ products }) {
 
   return (
     <div>
-      <h2>상품 목록</h2>
-      
-      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+      <h2 style={{marginBottom: '20px'}}>베스트 상품</h2>
+      <div className="grid">
         {products.map((product) => (
-          <div key={product.id} style={{ border: '1px solid black', padding: '10px' }}>
+          <div key={product.id} className="card" onClick={() => navigate(`/detail/${product.id}`)}>
             
-            <img src={product.image} alt={product.name} style={{ width: '150px', height: '150px' }} />
+            <img 
+              src={product.image} 
+              alt={product.name} 
+              className="card-img"
+            />
             
-            <h3>{product.name}</h3>
-            <p>{product.brand}</p>
-            <p>{product.price}원</p>
-            <button onClick={() => navigate(`/detail/${product.id}`)}>
-              상세 보기
-            </button>
-            
+            <div className="card-body">
+              <div className="card-title">{product.name}</div>
+              <div className="card-desc">{product.brand}</div>
+              <div className="card-price">{Number(product.price).toLocaleString()}원</div>
+            </div>
+
           </div>
         ))}
       </div>

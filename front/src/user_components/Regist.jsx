@@ -61,36 +61,23 @@ function Regist() {
     }
 
     return (
-        <div>
-            <h1>회원가입 페이지</h1>
+        <div style={{maxWidth:'500px', margin:'0 auto'}}>
+            <h1 style={{textAlign:'center', marginBottom:'30px'}}>회원가입</h1>
 
-            닉네임 : <input placeholder="닉네임을 입력하세요" onChange={(e)=>setNickname(e.target.value)} />
-            <br /> 
-
-             아이디 : <input placeholder="아이디를 입력하세요" onChange={(e)=>setId(e.target.value)} />
-            <br />
-
-             비밀번호 : <input placeholder='password를 입력하세요' onChange={(e)=>setPw(e.target.value)} />
-            <br />
-
-             생년월일 :   <input type="date"  value={dob} onChange={(e) => setDob(e.target.value)}/>
-            <br />
-
-             이름 : <input placeholder="성함을 입력하세요"onChange={(e)=>setName(e.target.value)} />
-                
-            <br />
-
-             성별 : 남성 <input type="radio" name="gender" value="M" onChange={(e)=>setGender(e.target.value)} />
-                    여성 <input type="radio" name="gender" value="F" onChange={(e)=>setGender(e.target.value)} />
-           
-            <br />
-             전화번호 : <input type="tel" pattern="010-[0-9]{4}-[0-9]{4}" placeholder="010-1234-5678" onChange={(e) => setPhone(e.target.value)} />
-
-             <br />
-
-            <button onClick={regist}>회원가입</button>
-
-
+            <div style={{display:'flex', flexDirection:'column', gap:'15px'}}>
+                <input className="input" placeholder="닉네임" onChange={(e)=>setNickname(e.target.value)} />
+                <input className="input" placeholder="아이디" onChange={(e)=>setId(e.target.value)} />
+                <input className="input" type="password" placeholder="비밀번호" onChange={(e)=>setPw(e.target.value)} />
+            <input className="input" placeholder="이름" onChange={(e)=>setName(e.target.value)} />
+            <div style={{display:'flex', gap:'10px'}}>
+                <input type="date" value={dob} onChange={(e) => setDob(e.target.value)}/>
+                <label><input type="radio" name="gender" value="M" onChange={(e)=>setGender(e.target.value)} /> 남성</label>
+                <label><input type="radio" name="gender" value="F" onChange={(e)=>setGender(e.target.value)} /> 여성</label>
+            </div>
+            
+                <input className="input" type="tel" placeholder="전화번호 (010-0000-0000)" onChange={(e) => setPhone(e.target.value)} />
+                <button className="btn" style={{marginTop:'20px', width:'100%'}} onClick={regist}>가입하기</button>
+            </div>
         </div>
     )
 }

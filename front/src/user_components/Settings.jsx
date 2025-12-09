@@ -9,15 +9,11 @@ function Settings() {
 
     return (
 
-    <div>
-        <h1>회원설정 선택</h1>
-        <button onClick={productclick}>상품등록창으로 이동</button>
-        <button onClick={() => navigate("/settings/edit")}>회원정보 수정</button> <br /> <br />
-        <button onClick={() => navigate("/settings/delete")}>회원정보 삭제</button>
-            {/* 결과 메세지 div
-            <div>
-            {resultMessage}
-            </div> */}
+    <div style={{ maxWidth: '400px', margin: '50px auto', textAlign: 'center' }}>
+        <h1 style={{ marginBottom: '30px' }}>회원설정</h1>
+        <button className="btn" onClick={productclick}>상품등록창으로 이동</button>
+        <button className="btn" onClick={() => navigate("/settings/edit")}>회원정보 수정</button> <br /> <br />
+        <button className="btn" onClick={() => navigate("/settings/delete")}>회원정보 삭제</button>
     </div>
     );
 
