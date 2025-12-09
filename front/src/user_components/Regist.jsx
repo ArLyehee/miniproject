@@ -8,16 +8,8 @@ function Regist() {
     const [dob, setDob] = useState("");
     const [name, setName] = useState("");
     const [gender,setGender] = useState("");
-    const [year, setYear] = useState("");
-    const [month, setMonth] = useState("");
-    const [day, setDay] = useState("");
     const [phone, setPhone] = useState("");
     const [nickname, setNickname] = useState("");
-
-    //생년월일 핸들러
-    const handleYearChange = (e) => setYear(e.target.value);
-    const handleMonthChange = (e) => setMonth(e.target.value);
-    const handleDayChange = (e) => setDay(e.target.value);
     
     
 
@@ -26,22 +18,20 @@ function Regist() {
         
         // 회원가입 기입란 공백 유효성 검사
 
-    if (!nickname) return alert("닉네임을 기입해주세요");
-    if (!id) return alert("아이디를 기입해주세요");
-    if (!pw) return alert("비밀번호를 기입해주세요");
-
-    if (!year)
-    return alert("태어난 연도를 기입해주세요");
-
-    if (!month)
-    return alert("태어난 월을 기입해주세요");
-
-    if (!day)
-    return alert("태어난 날을 기입해주세요");
-
-    if (!name) return alert("성함을 기입해주세요");
-    if (!gender) return alert("성별을 선택해주세요");
-    if (!phone) return alert("전화번호를 기입해주세요");
+    if (!nickname) 
+        return alert("닉네임을 기입해주세요");
+    if (!id) 
+        return alert("아이디를 기입해주세요");
+    if (!pw) 
+        return alert("비밀번호를 기입해주세요");
+    if (!dob) 
+        return alert("생년월일을 선택해 주세요");
+    if (!name) 
+        return alert("성함을 기입해주세요");
+    if (!gender) 
+        return alert("성별을 선택해주세요");
+    if (!phone) 
+        return alert("전화번호를 기입해주세요");
 
 
 
@@ -88,10 +78,7 @@ function Regist() {
              비밀번호 : <input placeholder='password를 입력하세요' onChange={(e)=>setPw(e.target.value)} />
             <br />
 
-             생년월일 :   <input type="text" placeholder="YYYY" maxLength="4" value={year} onChange={handleYearChange}/> 
-                         <input type="text" placeholder="MM" maxLength="2" value={month} onChange={handleMonthChange}/>
-                         <input type="text" placeholder="DD" maxLength="2" value={day} onChange={handleDayChange}/>
-                       
+             생년월일 :   <input type="date"  value={dob} onChange={(e) => setDob(e.target.value)}/>
             <br />
 
              이름 : <input placeholder="성함을 입력하세요"onChange={(e)=>setName(e.target.value)} />
