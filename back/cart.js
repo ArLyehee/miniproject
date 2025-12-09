@@ -16,25 +16,35 @@ router.get('/:userId', async(req, res)=>{
 
         res.status(200).json(rows);
     }catch(error){
+        console.error('장바구니 조회 에러:', error);
         res.status(500).json({error: '장바구니 조회 실패'});
     }
 })
 
-router.put('/update', async(req,res)=> {
-    await pool.query(
-        'UPDATE cart SET amount = ? WHERE userId = ? AND pId = ?',
-        [req.body.amount, req.body.userId, req.body.pId]
-    );
-    res.send({ "result": true });
-});
-
+router.put('/update', async(req,res)=>{
+    try {
+        const {pId, amount, userId} = req.body;
+        await pool.query('UPDATE cart SET amount = ? WHERE pId = ? AND id = ?',
+            [amount, pId, userId]
+        )
+        res.send({"result":true})
+    } catch(error) {
+        console.error('수량 업데이트 에러:', error);
+        res.status(500).json({error: '수량 변경 실패'});
+    }
+})
 
 router.delete('/delete', async(req,res)=>{
-    const {pId, userId} = req.body
-    await pool.query('DELETE FROM cart WHERE pId =? AND id = ?',
-        [pId, userId]
-    )
-    res.send({"result":true})
+    try {
+        const {pId, userId} = req.body;
+        await pool.query('DELETE FROM cart WHERE pId = ? AND id = ?',
+            [pId, userId]
+        )
+        res.send({"result":true})
+    } catch(error) {
+        console.error('삭제 에러:', error);
+        res.status(500).json({error: '삭제 실패'});
+    }
 })
 
 module.exports = router;
