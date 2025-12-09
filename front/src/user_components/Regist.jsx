@@ -33,11 +33,6 @@ function Regist() {
     if (!phone) 
         return alert("전화번호를 기입해주세요");
 
-
-
-        // YYYY-MM-DD 형식으로 합치기
-    const dob = `${year}-${month}-${day}`; 
-
         fetch("http://localhost:8080/users/regist",{
             method:'POST',
             headers: {
