@@ -155,7 +155,24 @@ function ProductDetail({ products, reviews, onAddReview}) {
         console.error('장바구니 추가 오류:', error);
         alert('장바구니 추가 실패');
     }
-}
+  }
+  const buyNow = () => {
+  if (!userId) {
+    alert('로그인이 필요합니다.');
+    navigate('/login');
+    return;
+  }
+  
+  const orderItem = {
+    id: product.id,
+    name: product.name,
+    price: product.price,
+    amount: quantity,
+    image: product.image
+  };
+  
+  navigate('/order', { state: { selectedItems: [orderItem] } });
+};
 
   return (
     <div onClick={() => navigate('/')}>
@@ -206,7 +223,7 @@ function ProductDetail({ products, reviews, onAddReview}) {
           </div>
           <div>
             <button onClick={moveCart}>장바구니 담기({quantity}개)</button>
-            <button onClick={moveCart}>바로 구매</button>
+            <button onClick={buyNow}>바로 구매</button>
           </div>
         </div>
 

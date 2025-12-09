@@ -80,7 +80,10 @@ function Cart() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ pId: id, amount: newAmount }),
+        body: JSON.stringify({ 
+          pId: id, 
+          amount: newAmount,
+          userId: userId}),
       });
       const result = await response.json();
       if (result.result) {

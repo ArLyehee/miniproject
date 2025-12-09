@@ -20,12 +20,14 @@ router.get('/:userId', async(req, res)=>{
     }
 })
 
-router.put('/update', async(req,res)=>{
-    await pool.query('UPDATE cart SET amount = ? WHERE pId = ?',
-        [req.body.amount, req.body.pId]
-    )
-    res.send({"result":true})
-})
+router.put('/update', async(req,res)=> {
+    await pool.query(
+        'UPDATE cart SET amount = ? WHERE userId = ? AND pId = ?',
+        [req.body.amount, req.body.userId, req.body.pId]
+    );
+    res.send({ "result": true });
+});
+
 
 router.delete('/delete', async(req,res)=>{
     const {pId, userId} = req.body
