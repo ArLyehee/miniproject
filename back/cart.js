@@ -7,12 +7,16 @@ router.get('/:userId', async(req, res)=>{
         const {userId} = req.params;
 
         const rows = await pool.query(
-            `SELECT pId as id, 
-                pName as name, 
-                pPrice as price,
-                amount as amount,
-                img as image
-                FROM cart WHERE id = ?`, [userId]);
+            `SELECT 
+                c.pId as id, 
+                c.pName as name, 
+                c.pPrice as price,
+                c.amount as amount,
+                c.img as image,
+                p.stock as stock
+            FROM cart c
+            LEFT JOIN products p ON c.pId = p.pId
+            WHERE c.id = ?`, [userId]);
 
         res.status(200).json(rows);
     }catch(error){
@@ -24,6 +28,24 @@ router.get('/:userId', async(req, res)=>{
 router.put('/update', async(req,res)=>{
     try {
         const {pId, amount, userId} = req.body;
+
+        const product = await pool.query(
+            `SELECT stock FROM products WHERE pId = ?`,
+            [pId]
+        );
+
+        if(!product || product.length === 0){
+            return res.status(404).json({error:'상품 오류'});
+        }
+
+        if(product[0].stock < amount){
+            return res.status(400).json({
+                error:'재고 수량 확인',
+                message:'수량을 다시 확인해주세요',
+                availableStock: product[0].stock
+            });
+        }
+
         await pool.query('UPDATE cart SET amount = ? WHERE pId = ? AND id = ?',
             [amount, pId, userId]
         )

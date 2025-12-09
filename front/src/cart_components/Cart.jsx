@@ -22,7 +22,6 @@ function Cart() {
   
   const fetchCart = async () => {
     try {
-      // ✅ userId를 URL에 포함
       const response = await fetch(`http://localhost:8080/cart/${userId}`);
       
       if (!response.ok) {
@@ -30,8 +29,7 @@ function Cart() {
       }
       
       const data = await response.json();
-      
-      // ✅ 데이터 구조 확인 후 설정
+    
       const cartItems = Array.isArray(data[0]) ? data[0] : data;
       setItems(cartItems);
       setCheckItem(cartItems.map(item => item.id));
@@ -49,6 +47,9 @@ function Cart() {
 
   const allCheckProduct = (e)=>{
     if(e.target.checked){
+      const avliableItems = items
+      .filter(item => item.stock > 0)
+      .map(item => item.id);
       setCheckItem(items.map(item=>item.id));
     } else{
       setCheckItem([]);
@@ -88,7 +89,10 @@ function Cart() {
       const result = await response.json();
       if (result.result) {
         fetchCart();
+      }else{
+        alert(result.message || result.error);
       }
+      
     }catch(error){
       console.error('수량 변경 실패:', error);
     }
@@ -106,6 +110,13 @@ function Cart() {
       return;
     }
     const selectedItems = items.filter(item => checkItem.includes(item.id));
+    const outStock = selectedItems.filter(item => item.stock === 0 || item.stock < item.amount);
+
+    if(outStock.length > 0){
+      const itemNames = outStock.map(item => item.name).join(', ');
+      alert(`재고가 부족합니다:\n${itemNames}\n\n 품절상태`)
+      return;
+    }
     navigate('/order', { state: { selectedItems: selectedItems } });
   }
   return (
@@ -138,14 +149,21 @@ function Cart() {
                   style={{
                   width: '100px',
                   height: '100px',
-                  objectFit: 'cover'
+                  objectFit: 'cover',
+                  opacity: item.stock === 0 ? 0.5 : 1
                   }}/>
                 </div>
                 <div>
                   <p>{item.name}</p>
                   <p>{item.price.toLocaleString()}원</p>
+                  {item.stock === 0 ? (
+                    <p style={{ color: 'red', fontWeight: 'bold' }}>❌ 일시 품절</p>
+                  ) : item.stock <= 5 ? (
+                    <p style={{ color: 'orange' }}>🔥품절 임박🔥 재고: {item.stock}개</p>
+                  ) : (
+                    <p style={{ color: 'green' }}></p>
+                  )}
                   <div>
-                    {/* <button onClick={() => updateAmount(item.id, item.amount - 1)}>-</button> */}
                     <button onClick={() => updateAmount(item.id, item.amount - 1)}
                       disabled={item.amount <= 1}>-</button>
                     <span>{item.amount}</span>
