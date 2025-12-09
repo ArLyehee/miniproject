@@ -8,6 +8,7 @@ const Order = () => {
   const [selectPay, setSelectPay] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
+  const userId = localStorage.getItem('userId')
 
   const [zipCode, setZipCode] = useState('');
   const [address, setAddress] = useState('');
@@ -41,7 +42,13 @@ const Order = () => {
   const cartPage = () => {
     window.history.back();
   }
-    async function pass(){
+  
+  async function pass(){
+    if (!userId) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
     if (!zipCode || !address) {
       alert('배송지 주소를 입력해주세요');
       return;

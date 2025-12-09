@@ -116,10 +116,8 @@ function ProductDetail({ products, reviews, onAddReview}) {
     );
   }
   const moveCart = async () => {
-    // ✅ localStorage에서 userId 가져오기
     const userId = localStorage.getItem('userId');
     
-    // 로그인 체크
     if (!userId) {
         alert('로그인이 필요합니다.');
         navigate('/login');
