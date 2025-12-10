@@ -4,21 +4,28 @@ import { useNavigate } from "react-router-dom";
 function Product() {
     const navigate = useNavigate();
     const [pName, setpName] = useState("")
+    const [brand, setBrand] = useState("")
     const [pPrice, setpPrice] = useState("")
     const [description, setdescription] = useState("")
+    const [pcategory, setCategory] = useState("")
     const [stock, setStock] = useState("")
     const [image, setImage] = useState(null);
 
     function saveProduct() {
         if (!pName.trim() || !pPrice.trim()) { alert("상품명, 가격은 필수 입력입니다"); return; }
+        if (brand && brand.trim().length === 0) { alert("브랜드 명을 입력해주세요"); return; }
         if (isNaN(pPrice.trim())) { alert ("가격은 숫자로 입력해주세요"); return; }
+        if (description && description.trim().length === 0) { alert ("상품 설명을 입력해주세요"); return; }
+        if (pcategory && pcategory.trim().length === 0) { alert ("카테고리를 입력해주세요"); return; }
         if (stock && isNaN(stock.trim())) { alert ("재고는 숫자로 입력해주세요"); return; }
 
         const formData = new FormData();
-        formData.append("pName", pName.trim());
-        formData.append("pPrice", pPrice.trim());
-        formData.append("description", description.trim() || "");
-        formData.append("stock", stock.trim() || 0);
+            formData.append("pName", pName.trim());
+            formData.append("brand", brand.trim() || "");
+            formData.append("pPrice", pPrice.trim());
+            formData.append("description", description.trim() || "");
+            formData.append("pcategory", pcategory.trim() || "");
+            formData.append("stock", stock.trim() || 0);
         if(image){ formData.append("image", image); }
 
         fetch("http://localhost:8080/main/addmain", {
@@ -48,8 +55,24 @@ function Product() {
                 </div>
 
                 <div>
+                    <select className="input" value={pcategory} 
+                        onChange={(e)=>setCategory(e.target.value)}>
+                        <option value="">카테고리를 선택해주세요.</option>
+                        <option value="스킨">스킨</option>
+                        <option value="로션">로션</option>
+                        <option value="올인원">올인원</option>
+                        <option value="미백/주름">미백/주름개선</option>
+                    </select>
+                </div>
+
+                <div>
                     <label style={{fontWeight:'bold'}}>상품명</label>
                     <input className="input" value={pName} onChange={(e) => setpName(e.target.value)} placeholder="상품명 입력"/>
+                </div>
+
+                <div>
+                    <label style={{fontWeight:'bold'}}>브랜드</label>
+                    <input className="input" value={brand} onChange={(e) => setBrand(e.target.value)} placeholder="브랜드"/>
                 </div>
                 
                 <div>

@@ -25,15 +25,10 @@ function App() {
   const [userName, setUserName] = useState(localStorage.getItem('userName') || '');
 
   useEffect(() => {
-    const storedUserId = localStorage.getItem('userId');
-    const storedUserName = localStorage.getItem('userName');
-    
-    if (storedUserId) {
+    if (userId) {
       setIsLoggedIn(true);
-      setUserId(storedUserId);
-      setUserName(storedUserName);
     }
-  }, []);
+  }, [userId]);
 
   const handleLogin = (id, name) => {
     localStorage.setItem('userId', id);
@@ -54,7 +49,6 @@ function App() {
   };
 
   const handleAddToCart = (productId, amount) => {
-    
   const targetProduct = products.find(p => String(p.id) === String(productId));
 
     if (!targetProduct) {
@@ -141,42 +135,37 @@ function App() {
   }, []);
 
   return (
-    <>
     <BrowserRouter>
-      <Header 
-        isLoggedIn={isLoggedIn} 
-        userName={userName} 
-        onLogout={handleLogout} 
+      <Header
+        isLoggedIn={isLoggedIn}
+        userName={userName}
+        onLogout={handleLogout}
       />
-      
+
       <div className="container">
         <Routes>
-          <Route path='/order' element={<Order />}/>
-          <Route path='/done' element={<Done />}/>
-          <Route path='/search' element={<Search />}/>
-          <Route path='/addmain' element={<Addmain />}/>
-          <Route path='/cart' element={<Cart />}/>
-          <Route path='/login' element={<Login onLogin={handleLogin} />}/>
-          <Route path='/regist' element={<Regist />}/>
-          <Route path='/mainpage' element={<MainPage />}/>
-          <Route path='/settings' element={<Settings />}/>
-          <Route path='/settings/edit' element={<EditUser />}/>
-          <Route path='/settings/delete' element={<DeleteUser />}/>
-          <Route path="/" element={<ProductList products={products}/>} />
-          
-          <Route path='/detail/:productId' element={
+          <Route path="/" element={<ProductList products={products} />} />
+          <Route path="/detail/:productId" element={
             <ProductDetail
               products={products}
               reviews={reviews}
               onAddReview={handleAddReview}
-              onAddToCart={handleAddToCart} 
-              userId={userId} 
-            />
-          } />
+              onAddToCart={handleAddToCart}
+              userId={userId}/>} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/order" element={<Order />} />
+          <Route path="/done" element={<Done />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/addmain" element={<Addmain />} />
+          <Route path="/login" element={<Login onLogin={handleLogin} />} />
+          <Route path="/regist" element={<Regist />} />
+          <Route path="/mainpage" element={<MainPage />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/settings/edit" element={<EditUser />} />
+          <Route path="/settings/delete" element={<DeleteUser />} />
         </Routes>
       </div>
     </BrowserRouter>
-    </>
   )
 }
 

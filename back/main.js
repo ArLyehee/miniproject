@@ -25,8 +25,8 @@ router.get('/search', async (req, res) => {
     let params = [];
 
     if (keyword) {
-        sql += " WHERE pName LIKE ?";
-        params.push(`%${keyword}%`);
+        sql += " WHERE pName LIKE ? OR pcategory LIKE ?";
+        params.push(`%${keyword}%`, `%${keyword}%`);
     }
 
     const pp = await pool.query(sql, params);
@@ -41,7 +41,7 @@ router.get('/search', async (req, res) => {
 
 router.post('/addmain', upload.single('image'), async(req,res)=> {
     const pId = 'p' + Date.now();
-    const { pName, pPrice, description, stock } = req.body; // req.body 내용들 선언 및 등록
+    const { pName, pPrice, brand, description,pcategory, stock } = req.body; // req.body 내용들 선언 및 등록
 
     // 필수 값 체크
 
@@ -63,8 +63,8 @@ router.post('/addmain', upload.single('image'), async(req,res)=> {
         }
 
     await pool.query(
-        'INSERT INTO products(pId, pName,pPrice,description,stock,img) VALUES(?,?,?,?,?,?)',
-        [pId, pName, price, description || '', stockNum, imgPath]
+        'INSERT INTO products(pId, pName, brand,pPrice,description,pcategory,stock,img) VALUES(?,?,?,?,?,?,?,?)',
+        [pId, pName, brand, price, description || '',pcategory || '', stockNum, imgPath]
     );
 
     res.json({message: "상품등록 완료", pId});
