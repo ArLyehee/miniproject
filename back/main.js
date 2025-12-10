@@ -18,6 +18,27 @@ const storage = multer.diskStorage ({
 
 const upload = multer({ storage });
 
+router.get('/search', async (req, res) => {
+    const keyword = req.query.keyword || "";
+    
+    let sql = "SELECT * FROM products";
+    let params = [];
+
+    if (keyword) {
+        sql += " WHERE pName LIKE ?";
+        params.push(`%${keyword}%`);
+    }
+
+    const pp = await pool.query(sql, params);
+
+    const result = pp.map(item => ({
+        ...item,
+        img: item.img ? `http://localhost:8080${item.img}` : null
+    }));
+    
+    res.send(result);
+});
+
 router.post('/addmain', upload.single('image'), async(req,res)=> {
     const pId = 'p' + Date.now();
     const { pName, pPrice, description, stock } = req.body; // req.body 내용들 선언 및 등록

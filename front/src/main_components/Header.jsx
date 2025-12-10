@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 function Header({ isLoggedIn, userName, onLogout }) {
     const [search, setSearch] = useState("");
     const [data, setData] = useState([]);
+    const [searchResult, setSearchResult] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -21,34 +22,30 @@ function Header({ isLoggedIn, userName, onLogout }) {
         navigate('/');
     };
 
-    const filterData = data.filter(item =>
-        (item.name || "").toLowerCase().includes((search || "").toLowerCase())
+    function onClick() {
+        const filterData = data.filter(item =>
+        (item.pName || "").toLowerCase().includes((search || "").toLowerCase())// 화면에 나오게
     );
 
-    function onClick() {
-        console.log("검색", filterData);
+    navigate(`/search?keyword=${search}`);
+    setSearchResult(filterData);
     }
 
     return (
 
         <header className="header">
-
             <div className="logo">
                 <Link to="/" style={{textDecoration:'none', color:'var(--main-color)'}}>SORA MARKET</Link>
             </div>
-
-
             <div style={{display:'flex', gap:'5px', flexGrow: 1, maxWidth:'400px', margin:'0 20px'}}>
                 <input 
                     type="text" 
                     className="input"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)} 
-                    placeholder="상품을 검색하세요" 
-                />
-                <button className="btn" onClick={onClick}>🔍</button> 
+                    placeholder="상품을 검색하세요" />
+                <button className="btn" value={search} onClick={onClick}>🔍</button> 
             </div>
-            
             <nav className="nav">
                 {isLoggedIn ? (
                     <>
