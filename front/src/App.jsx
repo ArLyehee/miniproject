@@ -8,12 +8,15 @@ import Done from './cart_components/Done'
 import Header from './main_components/Header.jsx';
 import Addproduct from './main_components/Addproduct.jsx'
 import Search from './main_components/Search.jsx'
+import AdminPage from './main_components/AdminPage';
 import Login from './user_components/Login'
 import Regist from './user_components/Regist.jsx';
 import Settings from './user_components/Settings'
 import EditUser from './user_components/EditUser'
 import DeleteUser from './user_components/DeleteUser'
-import MainPage from './user_components/MainPage'
+import MyPage from './user_components/MyPage.jsx'
+import AuthProvider from './context/AuthContext.jsx';
+
 import './App.css';
 
 function App() {
@@ -135,13 +138,13 @@ function App() {
   }, []);
 
   return (
+    <AuthProvider>
     <BrowserRouter>
       <Header
         isLoggedIn={isLoggedIn}
         userName={userName}
         onLogout={handleLogout}
       />
-
       <div className="container">
         <Routes>
           <Route path="/" element={<ProductList products={products} />} />
@@ -159,13 +162,15 @@ function App() {
           <Route path="/addproduct" element={<Addproduct />} />
           <Route path="/login" element={<Login onLogin={handleLogin} />} />
           <Route path="/regist" element={<Regist />} />
-          <Route path="/mainpage" element={<MainPage />} />
+          <Route path="/mypage" element={<MyPage />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/settings/edit" element={<EditUser />} />
           <Route path="/settings/delete" element={<DeleteUser />} />
+          <Route path='/admin' element={<AdminPage />} />
         </Routes>
       </div>
     </BrowserRouter>
+    </AuthProvider>
   )
 }
 

@@ -2,7 +2,6 @@ const express = require('express');
 const pool = require('./db');
 const router = express.Router();
 
-
 router.post('/regist', async (req, res) => {
     const { id, pw, nickname, dob, name, gender, phone } = req.body;
 
@@ -28,62 +27,57 @@ router.post('/regist', async (req, res) => {
         res.status(500).json({ result : false, error: '서버 오류' });
     }
 });
-
-// // 여기 로그인창
-// router.post('/login', async (req,res) => {
-//     const {id, pw} = req.body;
-// try{
-//     const rows = await pool.query(
-//         'SELECT * FROM users WHERE id = ? AND pw = ?',
-//         [id, pw]
-//     );
-
-//     if (rows.length > 0) {
-//         const users = rows[0];
-//         res.json({ result : true, name: users.name });
-//     }
-//     else {
-//         res.json({ result : false });
-//     }
-// } 
-//     catch (err) {
-//         console.error(err);
-//         res.status(500).json({ result : false, error: '서버 오류' });
-//     }
-
-// });
 router.post('/login', async (req, res) => {
     const { id, pw } = req.body;
 
     try {
         const rows = await pool.query(
-            'SELECT id, nickname, name FROM users WHERE id = ? AND pw = ?',
+            'SELECT * FROM users WHERE id = ? AND pw = ?',
             [id, pw]
         );
 
         if (rows.length > 0) {
             // ✅ 사용자 정보 반환
-            res.json({ 
-                result: true, 
-                userId: rows[0].id,
-                userName: rows[0].nickname,
-                name: rows[0].name
-            });
+           const user = rows[0];
+           req.session.user = {
+                id: user.id,
+                nickname: user.nickname,
+                name: user.name,
+                gender: user.gender,
+                phone: user.phone,
+                admin: user.admin
+           };
+             res.json({ result: true, user: req.session.user });
         } else {
-            res.json({ result: false });
+             res.json({ result: false, message: "아이디 또는 비밀번호가 일치하지 않습니다" });
         }
     } catch (err) {
         console.error(err);
         res.status(500).json({ result: false, error: '서버 오류' });
     }
 });
+router.get ('/', (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).json({ result: false, message: "로그인이 필요합나다" });
+    }
+    res.json ({ result: true, user: req.session.user });
+});
 
+// 여기부터 로그아웃
+router.post ('/logout', (req, res) => {
+    req.session.destroy(err => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ result: false, message: "로그인에 실패했습니다" });
+        }
+        res.clearCookie('connect.sid');
+        res.json({ result: true, message: "로그아웃 완료" })
+    });
+});
 
 // 수정하는 거
 router.put('/edit',async (req,res) => {
     const {
-        old_user_id, // 기존에 있던 id
-        new_user_id, // 새로 바꿀 id
         user_pw,
         user_nickname,
         user_name,
@@ -92,37 +86,31 @@ router.put('/edit',async (req,res) => {
         user_phone
     } = req.body
 
-    // 새 id와 기존 id의 중복 체크
-
-    if (old_user_id !== new_user_id) {
-        const rows = await pool.query(
-            'SELECT * FROM users WHERE id = ?',
-            [new_user_id]
-        );
-        if (rows.length > 0) {
-            return res.json({ result: false, message: "새 ID가 이미 존재합니다."});
-
-        }
-    }
-
-    // 정보 업데이트
-
-    await pool.query('UPDATE users SET id=?, pw=?, nickname=?, dob=?, name=?, gender=?, phone=? WHERE id=?',
-        [new_user_id, user_pw, user_nickname, user_dob, user_name, user_gender, user_phone , old_user_id]
+    await pool.query('UPDATE users SET pw=?, nickname=?, dob=?, name=?, gender=?, phone=? WHERE id=?',
+        [ user_pw, user_nickname, user_dob, user_name, user_gender, user_phone, user_id]
     );
     res.send({"result":true});
 });
 
 // 삭제하는 거
-router.delete('/delete', async (req, res) => {
-    const user_id = req.body.user_id;
+router.delete('/delete',async (req, res) => {
 
-    await pool.query(
-        'DELETE FROM users WHERE id = ?',
-        [user_id]
-    );
+    if (!req.session.user) {
+        return res.status(401).json({ result: false, messag: "로그인이 필요한기능입니다" }); // 세션 확인 (로그인 여부 확인 기능 추가)
+        }
 
-    res.send({ "result": true });
+        const user_id = req.session.user.id; // 이제 삭제할 user_id를 body가 아닌 세션에서 가지고 옴
+
+        try{
+            await pool.query( 'DELETE FROM users WHERE id = ?', [user_id] );
+
+            req.session.destroy(() => {}); // 계정 삭제 후 세션도 삭제 (즉 자동 로그아웃)
+
+            res.json({ result: true });
+        }
+        catch {
+            res.status(500).json({ result: false });
+        }
 });
 
 module.exports = router;

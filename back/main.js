@@ -5,7 +5,6 @@ const path = require('path');
 const router = express.Router();
 
 
-
 const storage = multer.diskStorage ({
     destination: function (req, file, cb) {
         cb(null, 'uploads/'); //uploads 폴더가 프로젝트 루트에 있어야 됨
@@ -40,6 +39,14 @@ router.get('/search', async (req, res) => {
 });
 
 router.post('/addmain', upload.single('image'), async(req,res)=> {
+    
+      // (관리자 체크)
+    if (!req.session.user || req.session.user.admin !== 1) {
+        return res.status(403).json({
+            result: false,
+            message: "관리자만 접근 가능합니다"
+        });
+    }
     const pId = 'p' + Date.now();
     const { pName, pPrice, brand, description,pcategory, stock } = req.body; // req.body 내용들 선언 및 등록
 

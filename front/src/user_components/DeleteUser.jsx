@@ -17,6 +17,7 @@ function DeleteUser() {
 
         const res = await fetch ("http://localhost:8080/users/delete", {
             method: "DELETE",
+            credentials: "include",
             headers: { "Content-Type":"application/json" },
             body: JSON.stringify({user_id: userId})
         });

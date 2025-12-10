@@ -1,7 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { AuthContext } from "../context/AuthContext.jsx";
 import { Link, useNavigate } from "react-router-dom";
 
-function Header({ isLoggedIn, userName, onLogout }) {
+function Header() {
+    const { isLogin, user, logout } = useContext(AuthContext);
     const [search, setSearch] = useState("");
     const [data, setData] = useState([]);
     const [searchResult, setSearchResult] = useState([]);
@@ -15,16 +17,15 @@ function Header({ isLoggedIn, userName, onLogout }) {
         }
         fetchProducts();
     }, []);
-
-    const handleLogout = () => {
-        onLogout();
+    const handleLogout = async () => {
+        await logout();
         alert('로그아웃 되었습니다.');
         navigate('/');
     };
 
     function onClick() {
         const filterData = data.filter(item =>
-        (item.pName || "").toLowerCase().includes((search || "").toLowerCase())// 화면에 나오게
+        (item.pName || "").toLowerCase().includes((search || "").toLowerCase())
     );
 
     navigate(`/search?keyword=${search}`);
@@ -47,11 +48,11 @@ function Header({ isLoggedIn, userName, onLogout }) {
                 <button className="btn" value={search} onClick={onClick}>🔍</button> 
             </div>
             <nav className="nav">
-                {isLoggedIn ? (
+                {isLogin ? (
                     <>
-                        <span style={{ fontWeight: 'bold', color:'var(--main-color)' }}>{userName}님</span>
+                        <span style={{ fontWeight: 'bold', color:'var(--main-color)' }}>{user?.nickname || "사용자"}님</span>
                         <Link to="/cart">장바구니</Link>
-                        <Link to="/settings">마이페이지</Link>
+                        <Link to="/mypage">마이페이지</Link>
                         <button className="btn" style={{padding:'5px 10px', fontSize:'12px'}} onClick={handleLogout}>로그아웃</button>
                     </>
                 ) : (
