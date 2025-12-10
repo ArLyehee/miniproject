@@ -110,38 +110,38 @@ function Cart() {
       return;
     }
     const selectedItems = items.filter(item => checkItem.includes(item.id));
-    const outStock = selectedItems.filter(item => item.stock === 0 || item.stock < item.amount);
-
+    const outStock = selectedItems.filter(item => {
+      return item.stock === 0 || item.stock < item.amount;
+    });
     if(outStock.length > 0){
       const itemNames = outStock.map(item => item.name).join(', ');
-      alert(`재고가 부족합니다:\n${itemNames}\n\n 품절상태`)
+      alert(`재고가 부족합니다:\n${itemNames}\n\n품절 상태입니다.`);
       return;
     }
     navigate('/order', { state: { selectedItems: selectedItems } });
   }
   return (
-    <>
-      <div>
-        <h2>장바구니</h2>
-      </div>
-      <div>
-        {items.length === 0 ? (
-          <div>
-            <p>장바구니가 비었습니다.</p>
-          </div>
-        ):(
-          <>
-          <div>
-            <label>
-              <input type="checkbox" 
-              onChange={allCheckProduct} 
-              checked={checkedCount === items.length}/>전체선택({checkedCount}/{items.length})
+    <div style={{maxWidth:'800px', margin:'0 auto'}}>
+      <h2 style={{textAlign:'center', margin:'30px 0'}}>장바구니</h2>
+      
+      {items.length === 0 ? (
+        <div style={{textAlign:'center', padding:'50px', backgroundColor:'#f9f9f9', borderRadius:'10px'}}>
+          <p>장바구니가 비었습니다.</p>
+          <button className="btn" style={{marginTop:'20px'}} onClick={()=>navigate('/')}>쇼핑하러 가기</button>
+        </div>
+      ):(
+        <>
+          <div style={{marginBottom:'15px', padding:'10px', borderBottom:'2px solid var(--main-color)'}}>
+            <label style={{fontWeight:'bold', cursor:'pointer'}}>
+              <input type="checkbox" onChange={allCheckProduct} checked={checkedCount === items.length} style={{marginRight:'10px'}}/>
+              전체선택 ({checkedCount}/{items.length})
             </label>
           </div>
-          <ul>
+
+          <ul style={{padding:0}}>
             {items.map((item)=>(
-              <li key={item.id}>
-                <div>
+              <li key={item.id} style={{display:'flex', gap:'20px', padding:'20px', borderBottom:'1px solid #eee', alignItems:'center'}}>
+                <div style={{display:'flex', alignItems:'center', gap:'15px'}}>
                   <input type="checkbox" 
                     checked={checkItem.includes(item.id)} 
                     onChange={() => checkProduct(item.id)}/>
@@ -154,35 +154,47 @@ function Cart() {
                   }}/>
                 </div>
                 <div>
-                  <p>{item.name}</p>
-                  <p>{item.price.toLocaleString()}원</p>
                   {item.stock === 0 ? (
-                    <p style={{ color: 'red', fontWeight: 'bold' }}>❌ 일시 품절</p>
-                  ) : item.stock <= 5 ? (
-                    <p style={{ color: 'orange' }}>🔥품절 임박🔥 재고: {item.stock}개</p>
-                  ) : (
+                      <p style={{ color: 'red', fontWeight: 'bold' }}>❌ 일시 품절</p>
+                    ) : item.stock < item.amount ? (
+                      <p style={{ color: 'orange', fontWeight: 'bold' }}>
+                        ⚠️ 재고 부족 (재고: {item.stock}개)
+                      </p>
+                    ) : item.stock <= 5 ? (
+                    <p style={{ color: 'orange' }}>🔥품절 임박🔥<br/>재고: {item.stock}개</p>
+                    ) : (
                     <p style={{ color: 'green' }}></p>
-                  )}
-                  <div>
-                    <button onClick={() => updateAmount(item.id, item.amount - 1)}
-                      disabled={item.amount <= 1}>-</button>
-                    <span>{item.amount}</span>
-                    <button onClick={() => updateAmount(item.id, item.amount + 1)}>+</button>
+                    )}
+                </div>
+                <div style={{flex:1}}>
+                  <h4 style={{margin:'0 0 5px 0'}}>{item.name}</h4>
+                  <p style={{fontWeight:'bold', color:'var(--main-color)'}}>{item.price.toLocaleString()}원</p>
+                </div>
+                <div style={{display:'flex', flexDirection:'column', alignItems:'flex-end', gap:'10px'}}>
+                  <div style={{display:'flex', alignItems:'center', gap:'5px'}}>
+                    <button className="btn" style={{padding:'2px 8px', backgroundColor:'#ddd', color:'black'}} 
+                        onClick={() => updateAmount(item.id, item.amount - 1)} disabled={item.amount <= 1}>-</button>
+                    <span style={{minWidth:'20px', textAlign:'center'}}>{item.amount}</span>
+                    <button className="btn" style={{padding:'2px 8px', backgroundColor:'#ddd', color:'black'}} 
+                        onClick={() => updateAmount(item.id, item.amount + 1)}>+</button>
                   </div>
-                  <button onClick={() => cartDelete(item.id)}>삭제</button>
+                  <button className="btn" style={{backgroundColor:'#ff6b6b', fontSize:'12px', padding:'5px 10px'}} onClick={() => cartDelete(item.id)}>삭제</button>
                 </div>
               </li>
             ))}
           </ul>
-          </>
-        )}
-      </div>
-      <div>
-        <h3>총 합계: {totalAmount.toLocaleString()}원</h3>
-        <button onClick={order}>주문하기</button>
-      </div>
-    </>
+        </>
+      )}
+
+      {items.length > 0 && (
+          <div style={{marginTop:'40px', padding:'30px', backgroundColor:'#f0f8ff', borderRadius:'10px', textAlign:'center'}}>
+            <h3>총 결제 금액: <span style={{color:'var(--main-color)', fontSize:'28px'}}>{totalAmount.toLocaleString()}원</span></h3>
+            <button className="btn" style={{marginTop:'20px', padding:'15px 50px', fontSize:'18px'}} onClick={order}>주문하기</button>
+          </div>
+      )}
+    </div>
   )
 }
+
 
 export default Cart 

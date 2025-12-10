@@ -1,123 +1,94 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
-// App.jsx에서 products 배열, reviews 배열, onAddReview 함수를 받음
-function ProductDetail({ products, reviews, onAddReview}) {
-
-  const userId = localStorage.getItem('userId');
-  const userName = localStorage.getItem('userName');
+function ProductDetail({ products, reviews, onAddReview,onAddToCart,userId}) {
   const navigate = useNavigate();
   const { productId } = useParams();
 
-  // [추가] 사용자가 선택한 평점을 저장하는 상태 (기본값 5점)
   const [rating, setRating] = useState(0);
   const [reviewComment, setReviewComment] = useState('');
   const [quantity, setQuantity] = useState(1);
 
-  const productReviews = reviews.filter(r =>
-    String(r.pId) === productId
-  );
+  const safeProductId = String(productId);
+  const productReviews = reviews.filter(r => String(r.pId) === productId);
+  const product = products.find(p => String(p.id) === productId);
 
   const handleQuantityButton = (type) => {
     if (!product) return;
-
     setQuantity(prev => {
-      // 재고 확인 재고 초과방지
-      if (type === 'plus' && prev < product.stock) {
-        return prev + 1;
-      } else if (type === 'minus' && prev > 1) {
-        return prev - 1;
-      }
+      if (type === 'plus' && prev < product.stock) return prev + 1;
+      else if (type === 'minus' && prev > 1) return prev - 1;
       return prev;
     });
   };
 
-  // 수량 입력 필드 값 변경 핸들러
   const handleQuantityChange = (event) => {
     if (!product) return;
     const value = parseInt(event.target.value, 10);
-
-    if (value >= 1 && value <= product.stock) {
-      setQuantity(value);
-    } else if (value < 1) {
-      setQuantity(1);
-    }
+    if (value >= 1 && value <= product.stock) setQuantity(value);
+    else if (value < 1) setQuantity(1);
   };
 
-  ///////////////별점 표시 함수 (기존)
   const renderStars = (score) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
-      // rating보다 작거나 같으면 꽉 찬 별(★), 아니면 빈 별(☆)
-      stars.push(
-        // 스타일 최소화 (색상만 유지)
-        <span key={i} style={{ color: i <= score ? '#FFD700' : '#E0E0E0' }}>
-          ★
-        </span>
-      );
+      stars.push(<span key={i} style={{ color: i <= score ? '#FFD700' : '#E0E0E0' }}>★</span>);
     }
     return stars;
   };
 
-  // [추가] 평점 선택 UI 함수
   const renderStarSelect = () => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
       stars.push(
         <span
           key={i}
-          onClick={() => setRating(i)} // 클릭 시 rating 상태 업데이트
-          style={{
-            cursor: 'pointer', // 클릭 가능 표시
-            // 현재 선택된 rating 반영
-            color: i <= rating ? '#FFD700' : '#E0E0E0',
-          }}
-        >
-          ★
-        </span>
+          onClick={() => setRating(i)}
+          style={{ cursor: 'pointer', color: i <= rating ? '#FFD700' : '#E0E0E0', fontSize:'24px' }}
+        >★</span>
       );
     }
-    return (
-      <div>
-        <span>평점 선택: </span>
-        {stars}
-        <span style={{ marginLeft: '5px' }}>({rating}점)</span>
-      </div>
-    );
+    return <div style={{marginBottom:'10px'}}>{stars} <span style={{fontSize:'14px'}}>({rating}점)</span></div>;
   };
-  ///////////////////////////////////////////////
+////////////////////////////////
+   const handleAddToCartClick = () => {
+    if (!userId) { 
+        alert('로그인이 필요한 서비스입니다.'); 
+        navigate('/login'); 
+        return; 
+    }
 
-  // 리뷰 제출 핸들러 [수정: rating 전달]
-  const handleSubmitReview = () => {
-    if (!userId) {
-        alert('로그인이 필요합니다.');
-        navigate('/login');
+    // 2. 재고 체크
+    if (quantity > product.stock) {
+        alert("재고가 부족합니다.");
         return;
     }
-      if (!reviewComment.trim()) {
-        alert("리뷰 내용을 입력해주세요.");
-        return;
-      }
-      // rating 값을 onAddReview 함수에 전달
-      onAddReview(productId, rating, reviewComment);
-      setReviewComment('');
-      setRating(0); // 제출 후 rating 초기화
+
+    if (onAddToCart) {
+        onAddToCart(product.id, quantity);
+    } else {
+        alert("시스템 오류: 함수 연결 실패");
+    }
   };
 
-
-  const product = products.find(p => String(p.id) === productId);
+  const handleSubmitReview = () => {
+    if (!userId) { alert('로그인이 필요합니다.'); navigate('/login'); return; }
+    if (!reviewComment.trim()) { alert("리뷰 내용을 입력해주세요."); return; }
+    onAddReview(productId, rating, reviewComment);
+    setReviewComment('');
+    setRating(0);
+  };
 
   if (!product) {
     return (
-      <div>
-        <h1>상품 정보를 찾을 수 없습니다.</h1>
-        <button onClick={() => navigate('/')}>목록으로 돌아가기</button>
+      <div style={{textAlign:'center', padding:'50px'}}>
+        <h1>상품을 찾을 수 없습니다.</h1>
+        <button className="btn" onClick={() => navigate('/')}>목록으로</button>
       </div>
     );
   }
+
   const moveCart = async () => {
-    const userId = localStorage.getItem('userId');
-    
     if (!userId) {
         alert('로그인이 필요합니다.');
         navigate('/login');
@@ -155,118 +126,82 @@ function ProductDetail({ products, reviews, onAddReview}) {
         console.error('장바구니 추가 오류:', error);
         alert('장바구니 추가 실패');
     }
-  }
-  const buyNow = () => {
-  if (!userId) {
-    alert('로그인이 필요합니다.');
-    navigate('/login');
-    return;
-  }
-  
-  const orderItem = {
-    id: product.id,
-    name: product.name,
-    price: product.price,
-    amount: quantity,
-    image: product.image
-  };
-  
-  navigate('/order', { state: { selectedItems: [orderItem] } });
-};
+}
 
   return (
-    <div onClick={() => navigate('/')}>
+    <div style={{padding:'20px'}}>
+      <button className="btn" style={{backgroundColor:'#aaa', marginBottom:'20px'}} onClick={() => navigate('/')}>← 목록으로</button>
 
-      <div onClick={(e) => e.stopPropagation()}>
+      {/* 상품 상세 레이아웃 */}
+      <div style={{display:'flex', flexWrap:'wrap', gap:'40px', marginBottom:'50px'}}>
+        <div style={{flex:1, minWidth:'300px'}}>
+            <img src={product.image} alt={product.name} style={{ width: '100%', borderRadius:'12px', border:'1px solid #eee' }} />
+        </div>
 
-        {/* 상품 정보 영역 */}
-        <div>
-          <button onClick={() => navigate('/')}>← 목록으로</button>
-
-          <span>브랜드: {product.brand}</span>
-          <p><img src={product.image} alt={product.name} style={{ width: '400px', height: '400px' }} /></p>
-          <h2>{product.name}</h2>
-          {product.stock === 0 ? (
-            <p style={{ color: 'gray', fontWeight: 'bold' }}>❌ 일시 품절</p>
-          ) : product.stock <= 5 ? (
-            <p style={{ color: 'red', fontWeight: 'bold' }}>
-              🔥품절 임박🔥
+        <div style={{flex:1, minWidth:'300px'}}>
+            <h4 style={{color:'#888'}}>{product.brand}</h4>
+            <h1 style={{fontSize:'32px', margin:'10px 0'}}>{product.name}</h1>
+            <p style={{fontSize:'24px', fontWeight:'bold', color:'var(--main-color)'}}>
+                {product.price ? product.price.toLocaleString() : 0}원
             </p>
-          ) : null}
-          <p>가격: {product.price ? product.price.toLocaleString() : 0}원</p>
-          <hr />
-
-          <p>상품 상세 설명: {product.description}</p>
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
-            <span style={{ marginRight: '10px', fontWeight: 'bold' }}>수량:</span>
-            <div style={{ display: 'flex' }}>
-              <button
-                onClick={() => handleQuantityButton('minus')}
-                style={{ marginRight: '5px' }}
-              >
-                -
-              </button>
-              <input
-                type="number"
-                min="1"
-                max={product.stock}
-                value={quantity}
-                onChange={handleQuantityChange}
-                style={{ width: '50px', textAlign: 'center', marginRight: '5px' }}
-              />
-              <button
-                onClick={() => handleQuantityButton('plus')}
-              >
-                +
-              </button>
+            
+            {product.stock === 0 ? <p style={{color:'red'}}>❌ 품절</p> : product.stock <= 5 ? <p style={{color:'orange'}}>🔥 품절 임박</p> : null}
+            
+            <p style={{margin:'20px 0', lineHeight:'1.6'}}>{product.description}</p>
+            
+            <div style={{ display: 'flex', alignItems: 'center', margin: '20px 0' }}>
+                <span style={{ marginRight: '10px', fontWeight: 'bold' }}>수량:</span>
+                <button className="btn" style={{padding:'5px 10px'}} onClick={() => handleQuantityButton('minus')}>-</button>
+                <input className="input" type="number" value={quantity} onChange={handleQuantityChange} style={{width:'60px', textAlign:'center', margin:'0 5px'}} />
+                <button className="btn" style={{padding:'5px 10px'}} onClick={() => handleQuantityButton('plus')}>+</button>
             </div>
-          </div>
-          <div>
-            <button onClick={moveCart}>장바구니 담기({quantity}개)</button>
-            <button onClick={buyNow}>바로 구매</button>
-          </div>
+
+            <div style={{display:'flex', gap:'10px'}}>
+                <button 
+                    className="btn" 
+                    style={{flex:1, backgroundColor:'#fff', color:'var(--main-color)', border:'2px solid var(--main-color)'}} 
+                    onClick={moveCart}
+                >
+                    장바구니
+                </button>
+                <button 
+                    className="btn" 
+                    style={{flex:1}} 
+                    onClick={moveCart} // 바로구매도 일단 장바구니  태움
+                >
+                    바로 구매
+                </button>
+            </div>
         </div>
+      </div>
 
-        {/* ====================여기부터 리뷰==================================== */}
-        <div>
-          <h3>리뷰 ({productReviews.length}개)</h3>
+      <hr style={{border:'0', borderTop:'1px solid #eee', margin:'40px 0'}} />
 
-          <div>
-            <h4>리뷰 작성하기</h4>
 
-            {/* [추가] 평점 선택 UI 렌더링 */}
+
+
+      {/* 리뷰 영역 */}
+      <div>
+        <h3>리뷰 ({productReviews.length})</h3>
+        
+        <div style={{backgroundColor:'#f9f9f9', padding:'20px', borderRadius:'12px', margin:'20px 0'}}>
             {renderStarSelect()}
-
-            <textarea
-              placeholder="리뷰를 남겨주세요..."
-              value={reviewComment}
-              onChange={(e) => setReviewComment(e.target.value)}
-            />
-            <button onClick={handleSubmitReview}>리뷰 제출</button>
-          </div>
-
-          {/* 기존 리뷰 목록 표시 */}
-          {productReviews.length > 0 ? (
-            productReviews.map((review, index) => (
-              <div style={{ border: 'solid 2px black' }} key={index}>
-                <p>
-                  <strong>{review.userName || '익명'}</strong>{review.gender === 'M' ? '♂️' : '♀️'}
-                  {renderStars(review.rating)}
-                  <span style={{ fontSize: '0.8em', color: 'gray', marginLeft: '5px' }}>
-                    ({review.rating}점)
-                  </span>
-                </p>
-
-                <p>{review.content}</p>
-                <p>{new Date(review.date).toLocaleDateString()}</p>                    </div>
-            ))
-          ) : (
-            <p>아직 이 상품의 리뷰가 없습니다.</p>
-          )}
-
+            <div style={{display:'flex', gap:'10px'}}>
+                <textarea className="input" style={{flex:1}} placeholder="리뷰를 남겨주세요..." value={reviewComment} onChange={(e) => setReviewComment(e.target.value)} />
+                <button className="btn" onClick={handleSubmitReview}>등록</button>
+            </div>
         </div>
-        {/* ========================여기까지 리뷰===================================== */}
 
+        {productReviews.map((review, index) => (
+          <div key={index} style={{ borderBottom: '1px solid #eee', padding: '15px 0' }}>
+            <div style={{display:'flex', justifyContent:'space-between', marginBottom:'5px'}}>
+                <strong>{review.userName || '익명'} {review.gender === 'M' ? '♂️' : '♀️'}</strong>
+                <span style={{color:'#888', fontSize:'12px'}}>{new Date(review.date).toLocaleDateString()}</span>
+            </div>
+            <div>{renderStars(review.rating)} <span style={{color:'#888'}}>({review.rating})</span></div>
+            <p style={{marginTop:'10px'}}>{review.content}</p>
+          </div>
+        ))}
       </div>
     </div>
   );

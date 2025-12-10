@@ -2,6 +2,29 @@ const express = require('express');
 const pool = require('./db');
 const router = express.Router();
 
+
+router.get('/info/:userId',async (req, res)=>{
+    try{
+        const {userId} = req.params;
+
+        const rows = await pool.query(
+            `SELECT 
+                name, 
+                phone
+            FROM users WHERE id =?`, [userId]
+        );
+        
+        if(rows.length > 0){
+            res.status(200).json(rows[0]);
+        }else{
+            res.status(404).json({ error: '사용자 정보를 찾을 수 없습니다.' });
+        }
+    } catch (error) {
+        console.error('사용자 정보 조회 에러:', error);
+        res.status(500).json({ error: '서버 에러' });
+    }
+});
+
 router.post('/', async(req, res) => {
     console.log('주문 요청 받음:', req.body);
     const connection = await pool.getConnection();

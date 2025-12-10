@@ -41,7 +41,7 @@ router.put('/update', async(req,res)=>{
         if(product[0].stock < amount){
             return res.status(400).json({
                 error:'재고 수량 확인',
-                message:'수량을 다시 확인해주세요',
+                message:'재고 수량을 확인해주세요!',
                 availableStock: product[0].stock
             });
         }

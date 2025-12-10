@@ -15,8 +15,6 @@ function Regist() {
 
 
     function regist() {
-        
-        // 회원가입 기입란 공백 유효성 검사
 
     if (!nickname) 
         return alert("닉네임을 기입해주세요");

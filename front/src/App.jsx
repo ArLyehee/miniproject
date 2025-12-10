@@ -1,67 +1,109 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import { useState, useEffect, use } from 'react'
+import { useState, useEffect } from 'react'
 import ProductList from './pro_components/ProductList.jsx';
 import ProductDetail from './pro_components/ProductDetail.jsx';
 import Order from './cart_components/Order'
 import Cart from './cart_components/Cart'
 import Done from './cart_components/Done'
-import Header from './main_components/header.jsx'
+import Header from './main_components/Header.jsx';
 import Addmain from './main_components/Addmain.jsx'
 import Login from './user_components/Login'
-import Regist from './user_components/regist.jsx'
+import Regist from './user_components/Regist.jsx';
 import Settings from './user_components/Settings'
 import EditUser from './user_components/EditUser'
 import DeleteUser from './user_components/DeleteUser'
 import MainPage from './user_components/MainPage'
-
+import './App.css';
 
 function App() {
   const [products, setProducts] = useState([]);
   const [reviews, setReviews] = useState([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);  // ✅ 추가
-  const [userName, setUserName] = useState('');  // ✅ 추가
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+  const [userId, setUserId] = useState(localStorage.getItem('userId') || '');
+  const [userName, setUserName] = useState(localStorage.getItem('userName') || '');
 
-  // 로그인 상태 확인
   useEffect(() => {
-    const userId = localStorage.getItem('userId');
-    const name = localStorage.getItem('userName');
+    const storedUserId = localStorage.getItem('userId');
+    const storedUserName = localStorage.getItem('userName');
     
-    if (userId) {
+    if (storedUserId) {
       setIsLoggedIn(true);
-      setUserName(name || '사용자');
+      setUserId(storedUserId);
+      setUserName(storedUserName);
     }
   }, []);
 
-  // 로그인 핸들러
-  const handleLogin = (userId, userName) => {
+  const handleLogin = (id, name) => {
+    localStorage.setItem('userId', id);
+    localStorage.setItem('userName', name);
     setIsLoggedIn(true);
-    setUserName(userName);
+    setUserId(id);
+    setUserName(name);
+    setUserId(id);
   };
 
-  // 로그아웃 핸들러
   const handleLogout = () => {
     localStorage.removeItem('userId');
     localStorage.removeItem('userName');
     setIsLoggedIn(false);
+    setUserId('');
     setUserName('');
+    alert("로그아웃 되었습니다.");
   };
 
-  const handleAddReview = (productId, rating, content) => {
+  const handleAddToCart = (productId, amount) => {
+    
+  const targetProduct = products.find(p => String(p.id) === String(productId));
 
-    fetch('http://localhost:8080/pro/addreview', { //합칠때 경로 잘 보기
+    if (!targetProduct) {
+        console.error("상품 정보를 찾을 수 없습니다.");
+        return;
+    }
+
+    console.log(`장바구니 담기: ${targetProduct.name}, 가격: ${targetProduct.price}, 수량: ${amount}`);
+
+    fetch('http://localhost:8080/pro/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        pId: productId,
+        id: userId,
+        amount: amount,
+        pName: targetProduct.name,   
+        pPrice: targetProduct.price, 
+        img: targetProduct.image     
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if(data.result) {
+        if(window.confirm("장바구니에 담겼습니다. 장바구니로 이동하시겠습니까?")) {
+        }
+      } else {
+        alert("장바구니 담기 실패");
+      }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("오류가 발생했습니다.");
+    });
+  };
+  
+  const handleAddReview = (productId, rating, content) => {
+    fetch('http://localhost:8080/pro/addreview', { 
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         productId,
         rating,
         content,
-        userName: localStorage.getItem('userName'),
-        userId: localStorage.getItem('userId')  
+        userName: userName,
+        userId: userId 
       })
     })
       .then(res => res.json())
       .then(newReviewList => {
-
         setReviews(newReviewList);
         alert("리뷰 작성이 완료되었습니다.");
       })
@@ -70,7 +112,6 @@ function App() {
         alert("리뷰 작성 실패.");
       });
   }
-  /////////////////////////////////////////
 
   useEffect(() => {
     async function fetchProducts() {
@@ -78,9 +119,8 @@ function App() {
         const response = await fetch('http://localhost:8080/pro/products');
         const data = await response.json();
         setProducts(data);
-
       } catch (error) {
-        console.error("서버가 켜져있는지 확인하세요. 상품 로딩 실패.", error);
+        console.error("상품 로딩 실패:", error);
         setProducts([]);
       }
     }
@@ -91,13 +131,12 @@ function App() {
         const data = await response.json();
         setReviews(data);
       } catch (error) {
-        console.error("리뷰 데이터를 불러오지 못했습니다.", error);
+        console.error("리뷰 로딩 실패:", error);
       }
     }
 
     fetchProducts();
     fetchReviews();
-
   }, []);
 
   return (
@@ -108,30 +147,32 @@ function App() {
         userName={userName} 
         onLogout={handleLogout} 
       />
-      <Routes>
-        <Route path='/order' element={<Order />}/>
-        <Route path='/done' element={<Done />}/>
-        <Route path='/addmain' element={<Addmain/>}/>
-        <Route path='/cart' element={<Cart/>}/>
-        <Route path='/login' element={<Login onLogin={handleLogin} />}/>
-        <Route path='/regist' element={<Regist/>}/>
-        <Route path='/mainpage' element={<MainPage/>}/>
-        <Route path='/settings' element={<Settings/>}/>
-        <Route path='/settings/edit' element={<EditUser/>}/>
-        <Route path='/settings/delete' element={<DeleteUser/>}/>
-        <Route path="/" element={
-          <div className="product-list" style={{ padding: '20px' , textAlign: 'center' }}>
-            <ProductList
-              products={products}/></div>} />
-        {/* 상세 페이지 라우트 */}
-        <Route path='/detail/:productId' element={
-          <ProductDetail
-            products={products}
-            reviews={reviews}
-            onAddReview={handleAddReview}
-          />
-        } />
-      </Routes>
+      
+      <div className="container">
+        <Routes>
+          <Route path='/order' element={<Order />}/>
+          <Route path='/done' element={<Done />}/>
+          <Route path='/addmain' element={<Addmain />}/>
+          <Route path='/cart' element={<Cart />}/>
+          <Route path='/login' element={<Login onLogin={handleLogin} />}/>
+          <Route path='/regist' element={<Regist />}/>
+          <Route path='/mainpage' element={<MainPage />}/>
+          <Route path='/settings' element={<Settings />}/>
+          <Route path='/settings/edit' element={<EditUser />}/>
+          <Route path='/settings/delete' element={<DeleteUser />}/>
+          <Route path="/" element={<ProductList products={products}/>} />
+          
+          <Route path='/detail/:productId' element={
+            <ProductDetail
+              products={products}
+              reviews={reviews}
+              onAddReview={handleAddReview}
+              onAddToCart={handleAddToCart} 
+              userId={userId} 
+            />
+          } />
+        </Routes>
+      </div>
     </BrowserRouter>
     </>
   )
