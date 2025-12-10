@@ -143,10 +143,10 @@ const buyNow = async () => {
                 state: { 
                     selectedItems: [{
                         id: product.id,
-                        pId: product.Pid,
-                        pName: product.name,
-                        pPrice: product.price,
-                        img: product.image,
+                        pid: product.Pid,
+                        name: product.name,
+                        price: product.price,
+                        image: product.image,
                         amount: quantity
                     }]
                 }

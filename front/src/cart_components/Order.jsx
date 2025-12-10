@@ -102,7 +102,7 @@ const Order = () => {
       alert('주문 처리 중 오류가 발생했습니다.');
     }
   }
-  const totalAmount = items.reduce((sum, item) => sum + item.pPrice * item.amount, 0);
+  const totalAmount = items.reduce((sum, item) => sum + item.price * item.amount, 0);
 
   const userInfo = async () => {
     if (!userId) return;
@@ -175,7 +175,7 @@ const Order = () => {
                       {items.map((item)=>(
                         <li key={item.id}>
                           <div>
-                            <img src={item.img} alt={item.pName}
+                            <img src={item.image} alt={item.name}
                             style={{
                               width: '100px',
                               height: '100px',
@@ -184,10 +184,10 @@ const Order = () => {
                           </div>
                           <div>
                             <span style={{fontWeight:'bold'}}>
-                              {item.pName} x {item.amount}개
+                              {item.name} x {item.amount}개
                             </span>
                             <span style={{fontWeight:'bold'}}>
-                              {(item.pPrice * item.amount).toLocaleString()}원
+                              {(item.price * item.amount).toLocaleString()}원
                             </span>
                             <div>
                             </div>
