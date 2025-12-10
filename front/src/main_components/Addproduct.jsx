@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-function Product() {
+function Addproduct() {
     const navigate = useNavigate();
     const [pName, setpName] = useState("")
     const [brand, setBrand] = useState("")
@@ -96,4 +96,4 @@ function Product() {
     )
 }
 
-export default Product;
+export default Addproduct;

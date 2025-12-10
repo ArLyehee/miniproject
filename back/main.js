@@ -51,15 +51,12 @@ router.post('/addmain', upload.single('image'), async(req,res)=> {
     }
 
     try{
-        // pPrice와 stock을 숫자로 변환
-
         const price = parseInt(pPrice);
         const stockNum = parseInt(stock) || 0;
 
-        // 이미지 파일 경로 처리
         let imgPath = null;
         if (req.file) {
-            imgPath = '/uploads/' + req.file.filename; // DB에 저장할 경로
+            imgPath = '/uploads/' + req.file.filename;
         }
 
     await pool.query(
