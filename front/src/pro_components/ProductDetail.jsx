@@ -50,26 +50,6 @@ function ProductDetail({ products, reviews, onAddReview,onAddToCart,userId}) {
     }
     return <div style={{marginBottom:'10px'}}>{stars} <span style={{fontSize:'14px'}}>({rating}점)</span></div>;
   };
-////////////////////////////////
-   const handleAddToCartClick = () => {
-    if (!userId) { 
-        alert('로그인이 필요한 서비스입니다.'); 
-        navigate('/login'); 
-        return; 
-    }
-
-    // 2. 재고 체크
-    if (quantity > product.stock) {
-        alert("재고가 부족합니다.");
-        return;
-    }
-
-    if (onAddToCart) {
-        onAddToCart(product.id, quantity);
-    } else {
-        alert("시스템 오류: 함수 연결 실패");
-    }
-  };
 
   const handleSubmitReview = () => {
     if (!userId) { alert('로그인이 필요합니다.'); navigate('/login'); return; }
@@ -104,7 +84,7 @@ function ProductDetail({ products, reviews, onAddReview,onAddToCart,userId}) {
             body: JSON.stringify({
                 pId: product.id,
                 id: userId,
-                amount: quantity,  // 기본 수량
+                amount: quantity,
                 img: product.image,
                 pName: product.name,
                 pPrice: product.price
@@ -121,6 +101,58 @@ function ProductDetail({ products, reviews, onAddReview,onAddToCart,userId}) {
             }
         } else {
             alert('장바구니 담는중 오류 발생');
+        }
+    } catch (error) {
+        console.error('장바구니 추가 오류:', error);
+        alert('장바구니 추가 실패');
+    }
+}
+
+const buyNow = async () => {
+  if (!userId) {
+        alert('로그인이 필요합니다.');
+        navigate('/login');
+        return;
+    }
+    try {
+        const response = await fetch('http://localhost:8080/pro/buynow', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                pId: product.id,
+                id: userId,
+                amount: quantity,
+                img: product.image,
+                pName: product.name,
+                pPrice: product.price
+            })
+        });
+        
+        const data = await response.json();
+
+        if (!response.ok) {
+            alert('장바구니 추가 실패');
+            return;
+        }
+        
+        if (data.result) {
+            alert('주문페이지로 넘어갑니다.');
+            navigate('/order', { 
+                state: { 
+                    selectedItems: [{
+                        id: product.id,
+                        pId: product.Pid,
+                        pName: product.name,
+                        pPrice: product.price,
+                        img: product.image,
+                        amount: quantity
+                    }]
+                }
+            });
+        } else {
+            alert(data.message || '장바구니 추가 실패');
         }
     } catch (error) {
         console.error('장바구니 추가 오류:', error);
@@ -159,16 +191,17 @@ function ProductDetail({ products, reviews, onAddReview,onAddToCart,userId}) {
             <div style={{display:'flex', gap:'10px'}}>
                 <button 
                     className="btn" 
-                    style={{flex:1, backgroundColor:'#fff', color:'var(--main-color)', border:'2px solid var(--main-color)'}} 
-                    onClick={moveCart}
-                >
+                    style={{flex:1, 
+                    backgroundColor:'#fff', 
+                    color:'var(--main-color)', 
+                    border:'2px solid var(--main-color)'}} 
+                    onClick={moveCart}>
                     장바구니
                 </button>
                 <button 
                     className="btn" 
                     style={{flex:1}} 
-                    onClick={moveCart} // 바로구매도 일단 장바구니  태움
-                >
+                    onClick={buyNow}>
                     바로 구매
                 </button>
             </div>
@@ -176,9 +209,6 @@ function ProductDetail({ products, reviews, onAddReview,onAddToCart,userId}) {
       </div>
 
       <hr style={{border:'0', borderTop:'1px solid #eee', margin:'40px 0'}} />
-
-
-
 
       {/* 리뷰 영역 */}
       <div>

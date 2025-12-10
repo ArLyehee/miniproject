@@ -138,7 +138,6 @@ router.post('/add', async (req, res) => {
 
     console.log('장바구니 추가 요청:', { pId, id, amount, pName, pPrice });
 
-    // 이미 장바구니에 있는지 확인
     const existing = await pool.query(
       'SELECT * FROM cart WHERE id = ? AND pId = ?',
       [id, pId]
@@ -164,5 +163,31 @@ router.post('/add', async (req, res) => {
     res.status(500).json({ result: false, error: '장바구니 추가 실패' });
   }
 });
+
+router.post('/buynow', async (req,res) =>{
+  try{
+    const { pId, id, amount, img, pName, pPrice } = req.body;
+
+    const existing = await pool.query(
+      'SELECT * FROM cart WHERE id = ? AND pId = ?',
+      [id, pId]
+    );
+    if (existing.length > 0) {
+      await pool.query(
+        'UPDATE cart SET amount = amount + ? WHERE id = ? AND pId = ?',
+        [amount, id, pId]
+      );
+    } else {
+      await pool.query(
+        'INSERT INTO cart (id, pId, pName, pPrice, amount, img) VALUES (?, ?, ?, ?, ?, ?)',
+        [id, pId, pName, pPrice, amount, img]
+      );
+    }
+    res.json({ result: true, message: '장바구니에 추가되었습니다' });
+  } catch (error) {
+    res.status(500).json({ result: false, error: '장바구니 추가 실패' });
+  }
+});
+
 
 module.exports = router;
