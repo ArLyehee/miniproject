@@ -16,6 +16,7 @@ import EditUser from './user_components/EditUser'
 import DeleteUser from './user_components/DeleteUser'
 import MyPage from './user_components/MyPage.jsx'
 import AuthProvider from './context/AuthContext.jsx';
+import EditProuct from './main_components/EditProduct.jsx';
 
 import './App.css';
 
@@ -120,6 +121,16 @@ const handleAddReview = async (productId, rating, content) => {
   }
 };
 
+const handleProductAdded = async () => {
+    try {
+      const response = await fetch('http://localhost:8080/pro/products');
+      const data = await response.json();
+      setProducts(data);
+    } catch (error) {
+      console.error("상품 로딩 실패:", error);
+    }
+  };
+
   useEffect(() => {
     async function fetchProducts() {
       try {
@@ -168,7 +179,7 @@ const handleAddReview = async (productId, rating, content) => {
           <Route path="/order" element={<Order />} />
           <Route path="/done" element={<Done />} />
           <Route path="/search" element={<Search />} />
-          <Route path="/addproduct" element={<Addproduct />} />
+          <Route path="/addproduct" element={<Addproduct onProductAdded={handleProductAdded} />} />
           <Route path="/login" element={<Login onLogin={handleLogin} />} />
           <Route path="/regist" element={<Regist />} />
           <Route path="/mypage" element={<MyPage />} />
@@ -176,6 +187,7 @@ const handleAddReview = async (productId, rating, content) => {
           <Route path="/settings/edit" element={<EditUser />} />
           <Route path="/settings/delete" element={<DeleteUser />} />
           <Route path='/admin' element={<AdminPage />} />
+          <Route path='/editproduct' element={<EditProuct/>}/>
         </Routes>
       </div>
     </BrowserRouter>

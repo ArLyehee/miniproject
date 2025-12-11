@@ -77,6 +77,42 @@ router.post('/addmain', upload.single('image'), async(req,res)=> {
 }
 });
 
+router.get('/dbprod', async (req, res) => {
+    try {
+        const rows = await pool.query("SELECT pId, pName, pPrice, description, pcategory, img, stock, brand FROM products");
+        const products = rows.map(row => ({
+        id: row.pId,
+        name: row.pName,
+        price: row.pPrice,
+        description: row.description,
+        category: row.pcategory,
+        image: `http://localhost:8080${row.img}`,
+        stock: row.stock,
+        brand: row.brand
+        }));
+        res.json(products);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json([]);
+    }
+    });
+
+router.put('/dbprod', async(req, res) => {
+    const { pId, stock } = req.body;
+    
+    try {
+        await pool.query(
+            'UPDATE products SET stock=? WHERE pId=?',
+            [parseInt(stock), pId]
+        );
+        
+        res.json({ success: true, message: "재고 수정 완료" });
+    } catch(err) {
+        console.error("DB 에러:", err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 //상품db
 router.get('/products',async(req,res) => {
     const rows = await pool.query('SELECT * FROM `products`');
