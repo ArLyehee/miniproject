@@ -36,3 +36,6 @@ npm install => npm run dev
 
 회원 정보 수정 페이지
 ![alt text](image-5.png)
+
+재고 수정 페이지
+![alt text](image-6.png)
