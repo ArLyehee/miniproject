@@ -103,6 +103,7 @@ ul {
    ========================================= */
 .card {
   background-color: white;
+  padding: 5px;
   border-radius: 12px;       /* 둥근 모서리 */
   overflow: hidden;          /* 둥근 모서리 밖으로 이미지 튀어나옴 방지 */
   border: 1px solid #eee;
@@ -177,4 +178,12 @@ ul {
 
 .input:focus {
   border-color: var(--main-color);
+}
+.btn2 {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  outline: none;
+  background-color: var(--main-color);
 }

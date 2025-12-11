@@ -24,7 +24,7 @@ function ProductItem({ item, onUpdate }) {
                 value={localStock} // 입력창에 보여질 값
                 onChange={(e) => setLocalStock(e.target.value)}
             />
-            <button className="btn" onClick={() => onUpdate(item.id, localStock)}>
+            <button className="btn2" onClick={() => onUpdate(item.id, localStock)}>
                 수정
             </button>
         </div>
