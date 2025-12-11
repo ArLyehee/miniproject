@@ -5,7 +5,7 @@ function ProductItem({ item, onUpdate }) {
     const [localStock, setLocalStock] = useState(''); 
 
     return (
-        <div className="card">
+        <div className="card2">
             <img 
                 src={item.image} 
                 alt={item.name} 
