@@ -2,6 +2,10 @@ const express = require('express');
 const pool = require('./db');
 const router = express.Router();
 
+
+
+
+// 여기부터 회원가입창
 router.post('/regist', async (req, res) => {
     const { id, pw, nickname, dob, name, gender, phone } = req.body;
 
@@ -27,6 +31,11 @@ router.post('/regist', async (req, res) => {
         res.status(500).json({ result : false, error: '서버 오류' });
     }
 });
+
+
+
+
+// 여기부터 로그인
 router.post('/login', async (req, res) => {
     const { id, pw } = req.body;
 
@@ -56,9 +65,10 @@ router.post('/login', async (req, res) => {
         res.status(500).json({ result: false, error: '서버 오류' });
     }
 });
+
+
+// 여기부터 인증 필요 알림 메시지
 router.get ('/', (req, res) => {
-    console.log('세션 정보:', req.session); // 디버깅용
-    console.log('세션 ID:', req.sessionID);
     if (!req.session.user) {
         return res.status(401).json({ result: false, message: "로그인이 필요합나다" });
     }
@@ -79,7 +89,18 @@ router.post ('/logout', (req, res) => {
 
 // 수정하는 거
 router.put('/edit',async (req,res) => {
+
+    // 세션확인
+    if (!req.session.user) {
+        return res.status(401).json({ result: false, message: "로그인이 필요한기능입니다" });
+    }
+
+    const old_user_id = req.session.user.id; // 기존 아이디는 세션에서 가져오도록 함
+
+    // 프론트가 보내는 값 
     const {
+        // old_user_id, // 기존에 있던 id
+        new_user_id, // 새로 바꿀 id
         user_pw,
         user_nickname,
         user_name,
@@ -88,11 +109,40 @@ router.put('/edit',async (req,res) => {
         user_phone
     } = req.body
 
-    await pool.query('UPDATE users SET pw=?, nickname=?, dob=?, name=?, gender=?, phone=? WHERE id=?',
-        [ user_pw, user_nickname, user_dob, user_name, user_gender, user_phone, user_id]
-    );
-    res.send({"result":true});
-});
+    // 새 id와 기존 id의 중복 체크
+
+    if (new_user_id && old_user_id !== new_user_id) {
+        const rows = await pool.query(
+            'SELECT * FROM users WHERE id = ?',
+            [new_user_id]
+        );
+        if (rows.length > 0) {
+            return res.json({ result: false, message: "이미 존재하는 아이디입니다."});
+
+        }
+    }
+     // 4. 기존 유저 정보 가져오기
+        const currentUser = await pool.query('SELECT * FROM users WHERE id = ?', [old_user_id]);
+        const userData = currentUser[0];
+        
+    // 5. 빈 값이면 기존 값 유지
+        const updatedId = new_user_id || old_user_id;
+        const updatedPw = user_pw || userData.pw;
+        const updatedNickname = user_nickname || userData.nickname;
+        const updatedDob = user_dob || userData.dob;
+        const updatedName = user_name || userData.name;
+        const updatedGender = user_gender || userData.gender;
+        const updatedPhone = user_phone || userData.phone;
+
+  // 6. 업데이트 쿼리
+        await pool.query(
+            'UPDATE users SET id=?, pw=?, nickname=?, dob=?, name=?, gender=?, phone=? WHERE id=?',
+            [updatedId, updatedPw, updatedNickname, updatedDob, updatedName, updatedGender, updatedPhone, old_user_id]
+        );
+
+        res.json({ result: true, message: "회원 정보 수정 완료" });
+
+    });
 
 // 삭제하는 거
 router.delete('/delete',async (req, res) => {
@@ -114,5 +164,8 @@ router.delete('/delete',async (req, res) => {
             res.status(500).json({ result: false });
         }
 });
+
+
+
 
 module.exports = router;

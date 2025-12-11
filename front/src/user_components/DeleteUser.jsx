@@ -1,31 +1,32 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
- 
+import { AuthContext } from "../context/AuthContext";
+
 function DeleteUser() {
     const [userId, setUserId] = useState("");
     const navigate = useNavigate();
- 
+    const { logout } = useContext(AuthContext); // ★ AuthContext에서 logout 가져오기
+
     async function deleteUsers() {
-        if (!userId) {
-            alert("삭제할 아이디를 입력하세요.");
-            return;
-        }
-        
         if (!window.confirm("정말로 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
             return;
         }
 
         const res = await fetch ("http://localhost:8080/users/delete", {
             method: "DELETE",
-            credentials: "include",
             headers: { "Content-Type":"application/json" },
-            body: JSON.stringify({user_id: userId})
+            credentials: "include"  // ★ 로그인 세션 쿠키 보내기
         });
 
         const data = await res.json();
-    
-        alert(data.result ? "회원 삭제 완료" : "삭제 실패");
-        if (data.result) navigate('/login');
+        if (data.result) {
+            alert("회원 삭제 완료");
+
+            await logout();          // ★ 전역 상태(user, isLoggedIn) 값 초기화
+            navigate("/login");      // ★ 로그인 페이지 이동
+        } else {
+            alert("삭제 실패");
+        }
     }
 
     return (
