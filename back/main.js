@@ -79,7 +79,7 @@ router.post('/addmain', upload.single('image'), async(req,res)=> {
 
 router.get('/dbprod', async (req, res) => {
     try {
-        const rows = await pool.query("SELECT pId, pName, pPrice, description, pcategory, img, stock, brand FROM products");
+        const rows = await pool.query("SELECT pId, pName, pPrice, description, pcategory, img, stock FROM products");
         const products = rows.map(row => ({
         id: row.pId,
         name: row.pName,
@@ -87,8 +87,7 @@ router.get('/dbprod', async (req, res) => {
         description: row.description,
         category: row.pcategory,
         image: `http://localhost:8080${row.img}`,
-        stock: row.stock,
-        brand: row.brand
+        stock: row.stock
         }));
         res.json(products);
     } catch (err) {
@@ -100,12 +99,17 @@ router.get('/dbprod', async (req, res) => {
 router.put('/dbprod', async(req, res) => {
     const { pId, stock } = req.body;
     
+
+    if (pId === undefined) {
+        return res.status(400).json({ success: false, error: "pId is missing" });
+    }
+
     try {
         await pool.query(
             'UPDATE products SET stock=? WHERE pId=?',
-            [parseInt(stock), pId]
+            [Number(stock) || 0, pId] 
         );
-        
+
         res.json({ success: true, message: "재고 수정 완료" });
     } catch(err) {
         console.error("DB 에러:", err);
