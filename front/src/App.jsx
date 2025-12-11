@@ -88,8 +88,9 @@ function App() {
     });
   };
   
-  const handleAddReview = (productId, rating, content) => {
-    fetch('http://localhost:8080/pro/addreview', { 
+const handleAddReview = async (productId, rating, content) => {
+  try {
+    const response = await fetch('http://localhost:8080/pro/addreview', { 
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -99,17 +100,25 @@ function App() {
         content,
         userName: userName,
       })
-    })
-      .then(res => res.json())
-      .then(newReviewList => {
-        setReviews(newReviewList);
-        alert("리뷰 작성이 완료되었습니다.");
-      })
-      .catch(error => {
-        console.error("리뷰 작성 중 오류 발생:", error);
-        alert("리뷰 작성 실패.");
-      });
+    });
+    
+    const data = await response.json();
+    
+    if (data.result) {
+      // ★ 리뷰 추가 성공 후 전체 리뷰 다시 불러오기
+      const reviewsResponse = await fetch('http://localhost:8080/pro/reviews');
+      const updatedReviews = await reviewsResponse.json();
+      setReviews(Array.isArray(updatedReviews) ? updatedReviews : []);
+      
+      alert("리뷰 작성이 완료되었습니다.");
+    } else {
+      alert("리뷰 작성 실패.");
+    }
+  } catch (error) {
+    console.error("리뷰 작성 중 오류 발생:", error);
+    alert("리뷰 작성 실패.");
   }
+};
 
   useEffect(() => {
     async function fetchProducts() {
