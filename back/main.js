@@ -39,7 +39,6 @@ router.get('/search', async (req, res) => {
 });
 
 router.post('/addmain', upload.single('image'), async(req,res)=> {
-    
       // (관리자 체크)
     if (!req.session.user || req.session.user.admin !== 1) {
         return res.status(403).json({

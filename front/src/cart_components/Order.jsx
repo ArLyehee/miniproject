@@ -1,14 +1,15 @@
-import {useState,useEffect} from 'react';
+import {useState,useEffect, useContext } from 'react';
 import {useNavigate, useLocation} from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
 
 const Order = () => {
-
+  const { isLogin, user, logout } = useContext(AuthContext);
+  const userId = user?.id;
   const [items, setItems] = useState([]);
   const [selectPay, setSelectPay] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
-  const userId = localStorage.getItem('userId')
 
   const [zipCode, setZipCode] = useState('');
   const [address, setAddress] = useState('');
@@ -40,7 +41,7 @@ const Order = () => {
     }).open();
   };
   async function pass(){
-    if (!userId) {
+    if (!isLogin || !userId) {
       alert('로그인이 필요합니다.');
       navigate('/login');
       return;
@@ -86,6 +87,7 @@ const Order = () => {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(orderData)
       });
 

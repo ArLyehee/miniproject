@@ -9,18 +9,14 @@ function AdminPage () {
 
 
         function productclick() {
-        navigate('/addmain')
+        navigate('/addproduct')
     }
 
 
     useEffect (() => {
-
-        // 로그인 상태가 확정된 후에만 체크
         if (!isLogin) 
             return;  
 
-
-        // 로그인 안 했거나 관리자 아니면 접근 못하게 막음
         if (!isLogin || user?.admin !== 1) {
             alert ("접근할 권한이 없습니다");
             navigate("/");

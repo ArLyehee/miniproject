@@ -57,6 +57,8 @@ router.post('/login', async (req, res) => {
     }
 });
 router.get ('/', (req, res) => {
+    console.log('세션 정보:', req.session); // 디버깅용
+    console.log('세션 ID:', req.sessionID);
     if (!req.session.user) {
         return res.status(401).json({ result: false, message: "로그인이 필요합나다" });
     }

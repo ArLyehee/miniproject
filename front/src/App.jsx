@@ -92,12 +92,12 @@ function App() {
     fetch('http://localhost:8080/pro/addreview', { 
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({
         productId,
         rating,
         content,
         userName: userName,
-        userId: userId 
       })
     })
       .then(res => res.json())

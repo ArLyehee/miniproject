@@ -1,18 +1,18 @@
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useContext } from 'react';
 import {useNavigate} from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
 
 
 function Cart() {
-  const userId = localStorage.getItem('userId');
-  const userName = localStorage.getItem('userName');
-
+  const { isLogin, user, logout } = useContext(AuthContext);
+  const userId = user?.id;
   const [items, setItems] = useState([]);
   const [checkItem,setCheckItem] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!userId) {
+    if (!isLogin || !userId) {
       alert('로그인이 필요합니다.');
       navigate('/login');
       return;
@@ -60,6 +60,7 @@ function Cart() {
     try {
       const response = await fetch('http://localhost:8080/cart/delete', {
         method: 'DELETE',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -81,6 +82,7 @@ function Cart() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ 
           pId: id, 
           amount: newAmount,

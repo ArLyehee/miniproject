@@ -30,6 +30,7 @@ function Addproduct() {
 
         fetch("http://localhost:8080/main/addmain", {
             method: "POST",
+            credentials: 'include',
             body: formData,
         })
             .then(res => res.json())

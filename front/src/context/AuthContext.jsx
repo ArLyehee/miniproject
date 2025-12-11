@@ -16,7 +16,6 @@ function AuthProvider({ children }) {
                 return;
             }
 
-            // localStorage에 정보가 있으면 서버에 세션 확인
             try {
                 const response = await fetch("http://localhost:8080/users", { 
                     credentials: "include" 

@@ -1,17 +1,26 @@
-import { useState } from 'react';
+import { useState, useContext} from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 
-function ProductDetail({ products, reviews, onAddReview,onAddToCart,userId}) {
+function ProductDetail({ products, reviews, onAddReview,onAddToCart}) {
   const navigate = useNavigate();
   const { productId } = useParams();
 
   const [rating, setRating] = useState(0);
   const [reviewComment, setReviewComment] = useState('');
+  const { user, isLogin } = useContext(AuthContext);
+  const userId = user?.id;
   const [quantity, setQuantity] = useState(1);
 
-  const safeProductId = String(productId);
-  const productReviews = reviews.filter(r => String(r.pId) === productId);
-  const product = products.find(p => String(p.id) === productId);
+  const productReviews = Array.isArray(reviews) 
+    ? reviews.filter(r => String(r.pId) === productId)
+    : [];
+    
+  const product = products?.find(p => String(p.id) === productId);
+
+  const averageRating = productReviews.length > 0
+    ? productReviews.reduce((sum, review) => sum + review.rating, 0) / productReviews.length
+    : 0;
 
   const handleQuantityButton = (type) => {
     if (!product) return;
@@ -51,10 +60,21 @@ function ProductDetail({ products, reviews, onAddReview,onAddToCart,userId}) {
     return <div style={{marginBottom:'10px'}}>{stars} <span style={{fontSize:'14px'}}>({rating}점)</span></div>;
   };
 
-  const handleSubmitReview = () => {
-    if (!userId) { alert('로그인이 필요합니다.'); navigate('/login'); return; }
-    if (!reviewComment.trim()) { alert("리뷰 내용을 입력해주세요."); return; }
-    onAddReview(productId, rating, reviewComment);
+  const handleSubmitReview = async () => {
+    if (!isLogin || !userId) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
+    if (!reviewComment.trim()) { 
+      alert("리뷰 내용을 입력해주세요."); 
+      return; 
+    }
+    if (rating === 0) {
+        alert("별점을 선택해주세요.");
+        return;
+    }
+    await onAddReview(productId, rating, reviewComment);
     setReviewComment('');
     setRating(0);
   };
@@ -69,10 +89,10 @@ function ProductDetail({ products, reviews, onAddReview,onAddToCart,userId}) {
   }
 
   const moveCart = async () => {
-    if (!userId) {
-        alert('로그인이 필요합니다.');
-        navigate('/login');
-        return;
+    if (!isLogin || !userId) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
     }
 
     try {
@@ -81,6 +101,7 @@ function ProductDetail({ products, reviews, onAddReview,onAddToCart,userId}) {
             headers: {
                 'Content-Type': 'application/json'
             },
+            credentials: 'include',
             body: JSON.stringify({
                 pId: product.id,
                 id: userId,
@@ -109,10 +130,10 @@ function ProductDetail({ products, reviews, onAddReview,onAddToCart,userId}) {
 }
 
 const buyNow = async () => {
-  if (!userId) {
-        alert('로그인이 필요합니다.');
-        navigate('/login');
-        return;
+  if (!isLogin || !userId) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
     }
     try {
         const response = await fetch('http://localhost:8080/pro/buynow', {
@@ -120,6 +141,7 @@ const buyNow = async () => {
             headers: {
                 'Content-Type': 'application/json'
             },
+            credentials: 'include',
             body: JSON.stringify({
                 pId: product.id,
                 id: userId,
@@ -160,11 +182,40 @@ const buyNow = async () => {
     }
 }
 
+const calculateAgeStats = (reviews) => {
+  const stats = { '10대': 0, '20대': 0, '30대': 0, '40대': 0, '50대 이상': 0 };
+  const total = reviews.length;
+
+  if (total === 0) return null;
+
+  reviews.forEach(review => {
+    if (!review.dob) return; 
+
+    const birthDate = new Date(review.dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+
+    if (age < 20) stats['10대']++;
+    else if (age < 30) stats['20대']++;
+    else if (age < 40) stats['30대']++;
+    else if (age < 50) stats['40대']++;
+    else stats['50대 이상']++;
+  });
+
+  const percentages = {};
+  for (const group in stats) {
+    percentages[group] = Math.round((stats[group] / total) * 100);
+  }
+  
+  return percentages;
+};
+
+const ageStats = calculateAgeStats(productReviews);
+
   return (
     <div style={{padding:'20px'}}>
       <button className="btn" style={{backgroundColor:'#aaa', marginBottom:'20px'}} onClick={() => navigate('/')}>← 목록으로</button>
 
-      {/* 상품 상세 레이아웃 */}
       <div style={{display:'flex', flexWrap:'wrap', gap:'40px', marginBottom:'50px'}}>
         <div style={{flex:1, minWidth:'300px'}}>
             <img src={product.image} alt={product.name} style={{ width: '100%', borderRadius:'12px', border:'1px solid #eee' }} />
@@ -212,8 +263,33 @@ const buyNow = async () => {
 
       {/* 리뷰 영역 */}
       <div>
-        <h3>리뷰 ({productReviews.length})</h3>
+        <h3>리뷰 ({productReviews.length}) ★{averageRating.toFixed(1)}</h3>
         
+{ageStats && (
+  <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#f5f5f5', borderRadius: '8px' }}>
+    <h4 style={{ marginBottom: '10px', fontSize: '14px', color: '#555' }}>연령별 선호도</h4>
+    
+    {Object.entries(ageStats).map(([ageGroup, percent]) => (
+      // 퍼센트가 0보다 클 때만 표시
+      percent > 0 && (
+        <div key={ageGroup} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', fontSize: '12px' }}>
+          {/* 라벨 (예: 20대) */}
+          <span style={{ width: '60px', fontWeight: 'bold' }}>{ageGroup}</span>
+          
+          {/* 막대 그래프 배경 */}
+          <div style={{ flex: 1, height: '10px', backgroundColor: '#e0e0e0', borderRadius: '5px', overflow: 'hidden', marginRight: '10px' }}>
+            {/* 실제 퍼센트 막대 (메인 컬러 사용) */}
+            <div style={{ width: `${percent}%`, height: '100%', backgroundColor: '#6B9AC4' }}></div>
+          </div>
+          
+          {/* 퍼센트 숫자 */}
+          <span style={{ width: '30px', textAlign: 'right', color: '#666' }}>{percent}%</span>
+        </div>
+      )
+    ))}
+  </div>
+)}
+
         <div style={{backgroundColor:'#f9f9f9', padding:'20px', borderRadius:'12px', margin:'20px 0'}}>
             {renderStarSelect()}
             <div style={{display:'flex', gap:'10px'}}>

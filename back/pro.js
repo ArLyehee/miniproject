@@ -53,7 +53,6 @@ router.get('/products/:pId', async (req, res) => {
 // GET /reviews 리뷰 전체 목록 
 router.get('/reviews', async (req, res) => {
   try {
-    // user 테이블 JOIN해서 gender 
     const query = `
       SELECT 
         r.review_id,
@@ -63,7 +62,8 @@ router.get('/reviews', async (req, res) => {
         r.date, 
         r.rating,
         u.nickname,
-        u.gender 
+        u.gender,
+        u.dob
       FROM review r
       LEFT JOIN users u ON r.id = u.id
       ORDER BY r.date DESC
@@ -79,7 +79,8 @@ router.get('/reviews', async (req, res) => {
       userName: row.nickname,
       date: row.date,
       gender: row.gender,
-      rating: row.rating //별점 일단 고정
+      dob: row.dob, // ✅ 연령별 통계를 위해 추가
+      rating: row.rating
     }));
 
     res.json(reviews);
@@ -89,24 +90,42 @@ router.get('/reviews', async (req, res) => {
   }
 });
 
-// [POST /addreview] 리뷰 저장 (저장 후 불러올 때도 성별 포함 ✨)
 router.post('/addreview', async (req, res) => {
-  const { productId, content, userId, userName, rating } = req.body;
-  const safeDate = new Date().toISOString().slice(0, 10);
-
   try {
-    // 1. 리뷰 저장 (컬럼명 주의: nickname은 users에 있으므로 review에는 저장 안 함, 필요 시 review 테이블 수정)
-    // 현재 review 테이블: review_id, id, nickname, pId, content, date
+    // ✅ 세션 확인
+    if (!req.session.user) {
+      return res.status(401).json({ 
+        result: false, 
+        message: "로그인이 필요합니다." 
+      });
+    }
+
+    const userId = req.session.user.id;
+    const userNickname = req.session.user.nickname;
+
+    const { productId, content, rating } = req.body;
+
+    // 유효성 검사
+    if (!productId || !content || !rating) {
+      return res.status(400).json({ 
+        result: false, 
+        message: "필수 정보를 입력해주세요." 
+      });
+    }
+
+    const safeDate = new Date().toISOString().slice(0, 10);
+
+    // 리뷰 저장
     await pool.query(
-      "INSERT INTO review (id, nickname, pId, content, date,rating) VALUES (?, ?,?, ?, ?, ?)",
-      [userId, userName, productId, content, safeDate,rating]
+      "INSERT INTO review (id, nickname, pId, content, date, rating) VALUES (?, ?, ?, ?, ?, ?)",
+      [userId, userNickname, productId, content, safeDate, rating]
     );
 
-    // 2. 최신 목록 다시 불러오기
+    // 업데이트된 리뷰 목록 반환
     const query = `
       SELECT 
         r.review_id, r.id AS id, r.pId, r.content, r.date, r.rating,
-        u.nickname, u.gender 
+        u.nickname, u.gender, u.dob
       FROM review r
       LEFT JOIN users u ON r.id = u.id
       ORDER BY r.date DESC
@@ -122,13 +141,18 @@ router.post('/addreview', async (req, res) => {
       userName: row.nickname,
       date: row.date,
       gender: row.gender,
-      rating:row.rating
+      dob: row.dob,
+      rating: row.rating
     }));
 
-    res.status(201).json(updatedReviews);
+    res.status(201).json({ result: true, reviews: updatedReviews });
   } catch (err) {
     console.error("리뷰 저장 오류:", err);
-    res.status(500).json({ message: "서버 오류", error: err.message });
+    res.status(500).json({ 
+      result: false, 
+      message: "서버 오류", 
+      error: err.message 
+    });
   }
 });
 
@@ -144,13 +168,11 @@ router.post('/add', async (req, res) => {
     );
 
     if (existing.length > 0) {
-      // 이미 있으면 수량 증가
       await pool.query(
         'UPDATE cart SET amount = amount + ? WHERE id = ? AND pId = ?',
         [amount, id, pId]
       );
     } else {
-      // 없으면 새로 추가
       await pool.query(
         'INSERT INTO cart (id, pId, pName, pPrice, amount, img) VALUES (?, ?, ?, ?, ?, ?)',
         [id, pId, pName, pPrice, amount, img]
@@ -164,14 +186,15 @@ router.post('/add', async (req, res) => {
   }
 });
 
-router.post('/buynow', async (req,res) =>{
-  try{
+router.post('/buynow', async (req, res) => {
+  try {
     const { pId, id, amount, img, pName, pPrice } = req.body;
 
     const existing = await pool.query(
       'SELECT * FROM cart WHERE id = ? AND pId = ?',
       [id, pId]
     );
+    
     if (existing.length > 0) {
       await pool.query(
         'UPDATE cart SET amount = amount + ? WHERE id = ? AND pId = ?',
@@ -188,6 +211,5 @@ router.post('/buynow', async (req,res) =>{
     res.status(500).json({ result: false, error: '장바구니 추가 실패' });
   }
 });
-
 
 module.exports = router;
