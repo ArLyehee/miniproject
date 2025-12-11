@@ -147,7 +147,7 @@ function Cart() {
                   <input type="checkbox" 
                     checked={checkItem.includes(item.id)} 
                     onChange={() => checkProduct(item.id)}/>
-                  <img src={item.image} alt={item.name}
+                  <img src={`http://localhost:8080${item.image}`} alt={item.name}
                   style={{
                   width: '100px',
                   height: '100px',

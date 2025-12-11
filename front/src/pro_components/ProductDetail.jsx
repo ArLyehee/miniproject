@@ -146,7 +146,6 @@ const buyNow = async () => {
                 pId: product.id,
                 id: userId,
                 amount: quantity,
-                img: product.image,
                 pName: product.name,
                 pPrice: product.price
             })

@@ -17,6 +17,8 @@ import DeleteUser from './user_components/DeleteUser'
 import MyPage from './user_components/MyPage.jsx'
 import AuthProvider from './context/AuthContext.jsx';
 import EditProuct from './main_components/EditProduct.jsx';
+import MyOrders from './cart_components/MyOrders.jsx';
+import AdminOrders from './cart_components/AdminOrder.jsx';
 
 import './App.css';
 
@@ -188,6 +190,8 @@ const handleProductAdded = async () => {
           <Route path="/settings/delete" element={<DeleteUser />} />
           <Route path='/admin' element={<AdminPage />} />
           <Route path='/editproduct' element={<EditProuct/>}/>
+          <Route path='/adminorder' element={<AdminOrders/>}/>
+          <Route path='/myorders' element={<MyOrders/>}/>
         </Routes>
       </div>
     </BrowserRouter>

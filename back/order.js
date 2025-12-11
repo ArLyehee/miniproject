@@ -156,4 +156,97 @@ router.put('/stock', async(req, res)=> {
     }
 })
 
+router.get("/admin", async (req, res) => {
+    if (!req.session.user || req.session.user.admin !== 1) {
+        return res.status(403).json({ error: "관리자 권한 필요" });
+    }
+
+    try {
+        const orders = await pool.query(`
+            SELECT 
+                order_Id AS orderId,
+                id AS userId,
+                totalAmount,
+                orderDate
+            FROM orders
+            ORDER BY orderDate DESC
+        `);
+
+        for (let order of orders) {
+            const items = await pool.query(`
+                SELECT 
+                    oi.orderItemId,
+                    oi.pId,
+                    oi.pName,
+                    oi.pPrice,
+                    oi.amount,
+                    p.img
+                FROM order_items oi
+                JOIN products p ON oi.pId = p.pId
+                WHERE oi.order_Id = ?
+            `, [order.orderId]);
+
+            order.items = items;
+        }
+
+        res.json(orders);
+    } catch (err) {
+        console.error("관리자 주문 조회 실패:", err);
+        res.status(500).json({ error: "서버 에러" });
+    }
+});
+
+router.get("/test",async(req,res)=>{
+    const items = await pool.query(`SELECT 
+                    oi.orderItemId,
+                    oi.pId,
+                    oi.pName,
+                    oi.pPrice,
+                    oi.amount,
+                    p.img
+                FROM order_items oi
+                JOIN products p ON oi.pId = p.pId
+                WHERE oi.order_Id = 8`)
+    const test = await pool.query('SELECT * FROM products')
+    res.json(test)
+})
+
+router.get("/user/:userId", async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+        const orders = await pool.query(`
+            SELECT 
+                order_Id AS orderId,
+                id AS userId,
+                totalAmount,
+                orderDate
+            FROM orders
+            WHERE id = ?
+            ORDER BY orderDate DESC
+        `, [userId]);
+
+        for (let order of orders) {
+            const items = await pool.query(`
+                SELECT 
+                    oi.orderItemId,
+                    oi.pId,
+                    oi.pName,
+                    oi.pPrice,
+                    oi.amount,
+                    p.img
+                FROM order_items oi
+                JOIN products p ON oi.pId = p.pId
+                WHERE oi.order_Id = ?
+            `, [order.orderId]);
+
+            order.items = items;
+        }
+        res.json(orders);
+    } catch (err) {
+        console.error("회원 주문 조회 실패:", err);
+        res.status(500).json({ error: "서버 에러" });
+    }
+});
+
 module.exports = router;

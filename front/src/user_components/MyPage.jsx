@@ -45,15 +45,32 @@ function MainPage() {
                     <p style={{fontSize:'14px', color:'#888'}}>담아둔 상품 확인</p>
                 </div>
 
+                
+                {/* 회원용 주문 조회 버튼 (모든 회원) */}
+                <div className="card" style={{ padding: '30px', cursor: 'pointer' }} onClick={() => navigate('/myorders')}>
+                    <h3>📦 내 주문 조회</h3>
+                    <p style={{ color: '#888' }}>내 주문 내역 확인</p>
+                </div>
+
+
+{/* 관리자 전용 버튼들 */}
                 {user.admin === 1 && (
-                    <div
-                        className="card"
-                        style={{ padding:'30px', cursor:'pointer' }}
-                        onClick={() => navigate('/admin')}>
-                        <h3>🛠 관리자 페이지</h3>
-                        <p style={{ color:'#888' }}>상품 등록 및 관리</p>
-                    </div>
+                    <>
+                        {/* 관리자 페이지 */}
+                        <div className="card" style={{ padding: '30px', cursor: 'pointer' }} onClick={() => navigate('/admin')}>
+                            <h3>🛠 관리자 페이지</h3>
+                            <p style={{ color: '#888' }}>상품 등록 및 관리</p>
+                        </div>
+
+                        {/* 관리자용 주문 조회 버튼 */}
+                        <div className="card" style={{ padding: '30px', cursor: 'pointer' }} onClick={() => navigate('/adminorder')}>
+                            <h3>📦 주문 조회 (관리자)</h3>
+                            <p style={{ color: '#888' }}>모든 주문 내역 확인</p>
+                        </div>
+                    </>
                 )}
+
+
             </div>
         </div>
     )

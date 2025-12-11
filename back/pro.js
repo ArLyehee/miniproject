@@ -188,10 +188,10 @@ router.post('/add', async (req, res) => {
 
 router.post('/buynow', async (req, res) => {
   try {
-    const { pId, id, amount, img, pName, pPrice } = req.body;
+    const { pId, id, amount } = req.body;
 
     const existing = await pool.query(
-      'SELECT * FROM cart WHERE id = ? AND pId = ?',
+      `SELECT * FROM cart WHERE id = ? AND pId = ?`,
       [id, pId]
     );
     
@@ -202,12 +202,13 @@ router.post('/buynow', async (req, res) => {
       );
     } else {
       await pool.query(
-        'INSERT INTO cart (id, pId, pName, pPrice, amount, img) VALUES (?, ?, ?, ?, ?, ?)',
-        [id, pId, pName, pPrice, amount, img]
+        'INSERT INTO cart (id, pId, amount) VALUES (?, ?, ?)',
+        [id, pId, amount]
       );
     }
     res.json({ result: true, message: '장바구니에 추가되었습니다' });
   } catch (error) {
+    console.error('장바구니 추가 오류:', error);
     res.status(500).json({ result: false, error: '장바구니 추가 실패' });
   }
 });
