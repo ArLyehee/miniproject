@@ -103,7 +103,6 @@ ul {
    ========================================= */
 .card {
   background-color: white;
-  padding: 5px;
   border-radius: 12px;       /* 둥근 모서리 */
   overflow: hidden;          /* 둥근 모서리 밖으로 이미지 튀어나옴 방지 */
   border: 1px solid #eee;
