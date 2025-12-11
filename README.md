@@ -31,11 +31,17 @@ npm install => npm run dev
 주문/결제 페이지
 ![alt text](image-3.png)
 
-상품 등록 페이지(관리자 전용)
-![alt text](image-2.png)
+주문 내역 페이지
+![alt text](image-8.png)
 
 회원 정보 수정 페이지
 ![alt text](image-5.png)
 
-재고 수정 페이지
+재고 수정 페이지(관리자 전용)
 ![alt text](image-6.png)
+
+상품 등록 페이지(관리자 전용)
+![alt text](image-2.png)
+
+주문 내역 페이지(관리자 전용)
+![alt text](image-7.png)
