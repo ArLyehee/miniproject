@@ -20,7 +20,7 @@ const Done = () => {
       }
 
       try {
-        const response = await fetch("http://localhost:8080/order/payments/confirm", {
+        const confirmResponse = await fetch("http://localhost:8080/order/payments/confirm", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -30,22 +30,55 @@ const Done = () => {
           })
         });
 
-        const data = await response.json();
+        const confirmData = await confirmResponse.json();
 
-        if (response.ok && data.status === "DONE") {
-          console.log("승인 완료:", data);
+        if (!confirmResponse.ok || confirmData.status !== "DONE") {
+          setError(confirmData.message || "결제 승인에 실패했습니다.");
+          setIsConfirming(false);
+          return;
+        }
+
+        console.log("결제 승인 완료:", confirmData);
+
+        const pendingOrderStr = sessionStorage.getItem('pendingOrder');
+        
+        if (!pendingOrderStr) {
+          setError("주문 정보를 찾을 수 없습니다.");
+          setIsConfirming(false);
+          return;
+        }
+
+        const orderData = JSON.parse(pendingOrderStr);
+
+        const orderResponse = await fetch('http://localhost:8080/order', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(orderData)
+        });
+
+        const orderResult = await orderResponse.json();
+
+        if (orderResponse.ok) {
+          console.log("주문 저장 완료:", orderResult);
+          
+          sessionStorage.removeItem('pendingOrder');
+          
           setIsConfirming(false);
           
           setTimeout(() => {
             navigate('/');
           }, 3000);
         } else {
-          setError(data.message || "결제 승인에 실패했습니다.");
+          setError(orderResult.error || "주문 저장에 실패했습니다.");
           setIsConfirming(false);
         }
+
       } catch (err) {
-        console.error("결제 승인 오류:", err);
-        setError("결제 승인 중 오류가 발생했습니다.");
+        console.error("처리 오류:", err);
+        setError("주문 처리 중 오류가 발생했습니다.");
         setIsConfirming(false);
       }
     };
