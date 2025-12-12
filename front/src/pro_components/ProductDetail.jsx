@@ -94,6 +94,15 @@ function ProductDetail({ products, reviews, onAddReview,onAddToCart}) {
       navigate('/login');
       return;
     }
+    if (product.stock === 0) {
+    alert('품절된 상품입니다.');
+    return;
+    }
+
+    if (product.stock < quantity) {
+      alert(`재고가 부족합니다. (현재 재고: ${product.stock}개)`);
+      return;
+    }
 
     try {
         const response = await fetch('http://localhost:8080/pro/add', {
@@ -134,6 +143,15 @@ const buyNow = async () => {
       alert('로그인이 필요합니다.');
       navigate('/login');
       return;
+  }
+  if (product.stock === 0) {
+    alert('품절된 상품입니다.');
+    return;
+  }
+
+  if (product.stock < quantity) {
+    alert(`재고가 부족합니다. (현재 재고: ${product.stock}개)`);
+    return;
   }
   
   try {
