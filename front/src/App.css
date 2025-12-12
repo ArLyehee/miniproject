@@ -188,11 +188,3 @@ ul {
 .input:focus {
   border-color: var(--main-color);
 }
-.btn2 {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  outline: none;
-  background-color: var(--main-color);
-}
