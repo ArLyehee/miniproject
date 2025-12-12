@@ -180,7 +180,7 @@ router.get("/admin", async (req, res) => {
                     oi.pName,
                     oi.pPrice,
                     oi.amount,
-                    p.img
+                    p.image
                 FROM order_items oi
                 JOIN products p ON oi.pId = p.pId
                 WHERE oi.order_Id = ?
@@ -203,7 +203,7 @@ router.get("/test",async(req,res)=>{
                     oi.pName,
                     oi.pPrice,
                     oi.amount,
-                    p.img
+                    p.image
                 FROM order_items oi
                 JOIN products p ON oi.pId = p.pId
                 WHERE oi.order_Id = 8`)
@@ -234,7 +234,7 @@ router.get("/user/:userId", async (req, res) => {
                     oi.pName,
                     oi.pPrice,
                     oi.amount,
-                    p.img
+                    p.image
                 FROM order_items oi
                 JOIN products p ON oi.pId = p.pId
                 WHERE oi.order_Id = ?

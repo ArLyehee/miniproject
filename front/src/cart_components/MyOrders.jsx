@@ -91,7 +91,7 @@ return (
                 {order.items.map((item) => (
                 <img 
                     key={item.orderItemId}
-                    src={`http://localhost:8080${item.img}` || "/default-image.png"}
+                    src={`http://localhost:8080${item.image}` || "/default-image.png"}
                     alt=""
                     style={imageStyle}
                 />

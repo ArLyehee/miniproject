@@ -12,7 +12,7 @@ router.get('/:userId', async(req, res)=>{
                 p.pName as name, 
                 p.pPrice as price,
                 c.amount as amount,
-                p.img as image,
+                p.image,
                 p.stock as stock
             FROM cart c
             LEFT JOIN products p ON c.pId = p.pId

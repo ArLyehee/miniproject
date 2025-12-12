@@ -88,7 +88,7 @@ return (
 
                 <td style={thTdStyle}>{item.pName}</td>
                 <td style={thTdStyle}>
-                <img src={`http://localhost:8080${item.img}` || "/default-image.png"} alt="" style={imageStyle} />
+                <img src={`http://localhost:8080${item.image}` || "/default-image.png"} alt="" style={imageStyle} />
                 </td>
                 
                 <td style={thTdStyle}>{item.amount}</td>
