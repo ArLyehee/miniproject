@@ -53,19 +53,19 @@ const Done = () => {
     confirmPayment();
   }, [searchParams, navigate]);
 
-  if (error) {
-    return (
-      <div style={{textAlign:'center', marginTop:'100px'}}>
-        <div style={{fontSize:'80px'}}>❌</div>
-        <h1 style={{margin:'20px 0', color:'#f44336'}}>결제 처리 실패</h1>
-        <p style={{fontSize:'18px', color:'#666'}}>{error}</p>
+  // if (error) {
+  //   return (
+  //     <div style={{textAlign:'center', marginTop:'100px'}}>
+  //       <div style={{fontSize:'80px'}}>❌</div>
+  //       <h1 style={{margin:'20px 0', color:'#f44336'}}>결제 처리 실패</h1>
+  //       <p style={{fontSize:'18px', color:'#666'}}>{error}</p>
         
-        <button className="btn" style={{marginTop:'30px'}} onClick={() => navigate('/cart')}>
-          장바구니로 돌아가기
-        </button>
-      </div>
-    );
-  }
+  //       <button className="btn" style={{marginTop:'30px'}} onClick={() => navigate('/cart')}>
+  //         장바구니로 돌아가기
+  //       </button>
+  //     </div>
+  //   );
+  // }
 
   if (isConfirming) {
     return (

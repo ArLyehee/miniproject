@@ -145,7 +145,7 @@ const Order = () => {
       return;
     }
 
-    const clientKey = "test_ck_0RnYX2w532YM2qB0p5B18NeyqApQ";
+    const clientKey = import.meta.env.VITE_TOSS_CLIENT_KEY;
     const tossPayments = TossPayments(clientKey);
 
     const firstItemName = items[0].name;
