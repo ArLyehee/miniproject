@@ -23,26 +23,26 @@ npm install => npm run dev
 ![alt text](./img/image.png)
 
 제품 상세 페이지
-![alt text](../img/image-4.png)
+![alt text](./img/image-4.png)
 
 장바구니 페이지
-![alt text](../img/image-1.png)
+![alt text](./img/image-1.png)
 
 주문/결제 페이지
-![alt text](../img/image-3.png)
-![alt text](../img/image-9.png)
+![alt text](./img/image-3.png)
+![alt text](./img/image-9.png)
 
 주문 내역 페이지
-![alt text](../img/image-6.png)
+![alt text](./img/image-6.png)
 
 회원 정보 수정 페이지
-![alt text](../img/image-5.png)
+![alt text](./img/image-5.png)
 
 상품 수정 페이지(관리자 전용)
-![alt text](../img/image-8.png)
+![alt text](./img/image-8.png)
 
 상품 등록 페이지(관리자 전용)
-![alt text](../img/image-2.png)
+![alt text](./img/image-2.png)
 
 주문 내역 페이지(관리자 전용)
-![alt text](../img/image-7.png)
+![alt text](./img/image-7.png)
