@@ -67,6 +67,26 @@ const Order = () => {
       return;
     }
 
+    if (selectPay === '토스페이') {
+    const clientKey = import.meta.env.VITE_TOSS_CLIENT_KEY || "test_ck_0RnYX2w532YM2qB0p5B18NeyqApQ";
+    const tossPayments = TossPayments(clientKey);
+
+    const firstItemName = items[0].name;
+    const orderName = items.length > 1 
+      ? `${firstItemName} 외 ${items.length - 1}건`
+      : firstItemName;
+
+    tossPayments.requestPayment("카드", {
+      amount: totalAmount,
+      orderId: `order_${Date.now()}`,
+      orderName: orderName,
+      customerName: recipient || "고객명",
+      successUrl: `${window.location.origin}/done`,
+      failUrl: `${window.location.origin}/fail`
+    });
+    return;
+    }
+
     try {
       const orderData = {
         userId: userId,
@@ -132,36 +152,6 @@ const Order = () => {
         setPhone('');
       }
     };
-
-    const handlePayment = () => {
-    // 유효성 검사
-    if (!items || items.length === 0) {
-      alert("장바구니에 상품이 없습니다.");
-      return;
-    }
-
-    if (!totalAmount || totalAmount <= 0) {
-      alert("결제 금액이 올바르지 않습니다.");
-      return;
-    }
-
-    const clientKey = import.meta.env.VITE_TOSS_CLIENT_KEY;
-    const tossPayments = TossPayments(clientKey);
-
-    const firstItemName = items[0].name;
-    const orderName = items.length > 1 
-      ? `${firstItemName} 외 ${items.length - 1}건`
-      : firstItemName;
-
-    tossPayments.requestPayment("카드", {
-      amount: totalAmount,
-      orderId: `order_${Date.now()}`,
-      orderName: orderName,
-      customerName: recipient || "고객명",
-      successUrl: `${window.location.origin}/done`,
-      failUrl: `${window.location.origin}/fail`
-    });
-  };
 
     
   return (
@@ -233,12 +223,11 @@ const Order = () => {
             <div style={{marginBottom:'40px'}}>
             <h3 style={{borderBottom:'2px solid #ddd', paddingBottom:'10px'}}>결제 수단</h3>
             <div style={{display:'flex', flexWrap:'wrap', gap:'10px', marginTop:'15px'}} onChange={(e) => setSelectPay(e.target.value)}>
-                {['신용카드', '계좌이체', '휴대폰결제', '네이버페이', '카카오페이'].map((pay) => (
+                {['신용카드', '계좌이체', '휴대폰결제', '네이버페이', '카카오페이','토스페이'].map((pay) => (
                     <label key={pay} style={{padding:'10px 20px', border:'1px solid #ddd', borderRadius:'20px', cursor:'pointer', backgroundColor: selectPay === pay ? '#e0f7fa' : 'white'}}>
                         <input type="radio" value={pay} name="pay" style={{marginRight:'5px'}}/> {pay}
                     </label>
                 ))}
-                <button className="btn" onClick={handlePayment}>토스 간편결제</button>
             </div>
             </div>
             <div style={{textAlign:'center', padding:'30px', backgroundColor:'#f9f9f9', borderRadius:'10px'}}>
