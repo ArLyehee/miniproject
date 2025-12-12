@@ -1,7 +1,61 @@
 const express = require('express');
 const pool = require('./db');
 const router = express.Router();
+require('dotenv').config();
 
+const SECRET_KEY = process.env.TOSS_SECRET_KEY;
+
+    router.post("/payments/confirm", async (req, res) => {
+    const { paymentKey, orderId, amount } = req.body;
+
+    try {
+        const response = await fetch("https://api.tosspayments.com/v1/payments/confirm", {
+            method: "POST",
+            headers: {
+                "Authorization": "Basic " + Buffer.from(SECRET_KEY + ":").toString("base64"),
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ paymentKey, orderId, amount })
+        });
+
+        const result = await response.json();
+        console.log("Toss 확인 결과:", result);
+
+        if (!response.ok) {
+            console.error("Toss API 오류:", result);
+            return res.status(response.status).json({
+                success: false,
+                message: result.message || "결제 승인에 실패했습니다.",
+                code: result.code
+            });
+        }
+
+        if (result.status === "DONE") {
+
+            res.json({
+                success: true,
+                status: result.status,
+                orderId: result.orderId,
+                paymentKey: result.paymentKey,
+                message: "결제가 완료되었습니다."
+            });
+        } else {
+            res.status(400).json({
+                success: false,
+                message: "결제 상태가 완료되지 않았습니다.",
+                status: result.status
+            });
+        }
+
+    } catch (error) {
+        console.error("결제 승인 처리 오류:", error);
+        res.status(500).json({
+            success: false,
+            message: "결제 승인 중 서버 오류가 발생했습니다.",
+            error: error.message
+        });
+    }
+});
 
 router.get('/info/:userId',async (req, res)=>{
     try{
