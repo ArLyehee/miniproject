@@ -20,7 +20,7 @@ package.json 에 11번째 줄
 npm install => npm run dev
 
 처음 실행화면
-![alt text](../img/image.png)
+![alt text](./img/image.png)
 
 제품 상세 페이지
 ![alt text](../img/image-4.png)
