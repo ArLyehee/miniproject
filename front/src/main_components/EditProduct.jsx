@@ -105,7 +105,7 @@ function ProductItem({ item, onUpdate, onDelete }) {
         </div>
 
         <div>
-            <label>재고</label>
+            <label>재고 (현재 재고: {item.stock})</label>
             <input className="input" type="number" value={localStock} onChange={(e) => setLocalStock(e.target.value)} />
         </div>
 
